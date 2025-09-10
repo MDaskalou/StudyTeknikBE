@@ -1,0 +1,30 @@
+# Build
+bin/
+obj/
+out/
+dist/
+build/
+.next/
+
+# Packages
+node_modules/
+*.nuget/
+*.nupkg
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+
+# Logs
+*.log
+
+# Env
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
