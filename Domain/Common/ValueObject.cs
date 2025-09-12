@@ -16,10 +16,4 @@ namespace Domain.Common
     {
         
     }
-    
-    
-    public sealed class StudentConsent : ValueObject
-    {
-        
-    }
 }

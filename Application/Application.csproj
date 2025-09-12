@@ -8,7 +8,6 @@
 
     <ItemGroup>
       <Folder Include="Abstractions\IPersistence\Repositories\" />
-      <Folder Include="Common\Behaviors\" />
       <Folder Include="Common\Exceptions\" />
     </ItemGroup>
 
