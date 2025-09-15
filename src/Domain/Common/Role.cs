@@ -2,10 +2,13 @@
 {
     
     //fasta listor som används i hela domänen
-    //Todo: Håller enum role minimum (MVP)
     //Todo: Synkar med claims från idp i WebApi/infrastrucure
     public enum Role
     {
+        Student,
+        Teacher,
+        Admin,
+        Mentor
         
     }
 }
