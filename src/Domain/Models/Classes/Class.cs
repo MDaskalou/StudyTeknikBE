@@ -1,10 +1,6 @@
 ﻿using Domain.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Domain.Classes;
 
-namespace Domain.Entities.Classes
+namespace Domain.Models.Classes
 {
     // TODO: Aggregate Root för skolklass.
     //Aggregate menas att en klass är en rot i en trädstruktur av objekt.

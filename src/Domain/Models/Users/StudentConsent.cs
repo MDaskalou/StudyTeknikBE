@@ -1,6 +1,6 @@
-﻿using Domain.Common;
+﻿using Domain.Models.Common;
 
-namespace Domain.Users
+namespace Domain.Models.Users
 {
     //Todo: VO för samtycke
     //Todo: immunt(oföränderligt): skapa nytt om ändring krävs
@@ -17,33 +17,31 @@ namespace Domain.Users
         public bool Given { get; }
         public DateTime? GivenAtUtc { get; }
         public string? SetBy { get; }
-        
-        private StudentConsent(){}
+
+        private StudentConsent() { }
 
         private StudentConsent(bool given, DateTime? givenAtUtc, string? setBy)
         {
             Given = given;
             GivenAtUtc = givenAtUtc;
-            SetBy = string.IsNullOrWhiteSpace(setBy) ? "null" : setBy.Trim();
+            SetBy = string.IsNullOrWhiteSpace(setBy) ? null : setBy.Trim();
         }
-        
-        //Fabrikmetoder
-        
-        public static StudentConsent Granted (string? setBy)
+
+        public static StudentConsent Granted(string? setBy)
             => new StudentConsent(true, DateTime.UtcNow, setBy);
-        
-        public static StudentConsent Revoked (string? setBy)
+
+        public static StudentConsent Revoked(string? setBy)
             => new StudentConsent(false, null, setBy);
-        
+
         public static StudentConsent Create(bool given, string? setBy)
             => given ? Granted(setBy) : Revoked(setBy);
 
-        protected override IEnumerable<object> GetEqualityComponents()
+        // Viktigt: matcha ValueObject-signaturen (object?)
+        protected override IEnumerable<object?> GetEqualityComponents()
         {
             yield return Given;
             yield return GivenAtUtc;
             yield return SetBy;
         }
-    
     }
 }

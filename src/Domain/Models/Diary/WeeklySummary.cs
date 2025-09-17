@@ -1,6 +1,6 @@
 ﻿using Domain.Abstractions;
 
-namespace Domain.Entities.Diary
+namespace Domain.Models.Diary
 {
     // Veckosammanfattning (unik per StudentId + YearWeek, t.ex. "2025-W36")
     public sealed class WeeklySummary : IAggregateRoot

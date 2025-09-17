@@ -1,3 +1,6 @@
+using Infrastructure.DependencyInjection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+
 namespace StudyTeknik;
 
 public class Program
@@ -5,10 +8,27 @@ public class Program
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+        
+        
 
         // Add services to the container.
+        builder.Services.AddControllers();
         builder.Services.AddAuthorization();
-
+        builder.Services.AddInfrastructure(builder.Configuration);
+        
+        // AuthN (extern IdP – byt Authority/Audience i appsettings)
+        builder.Services
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.Authority = builder.Configuration["Jwt:Authority"];
+                options.Audience = builder.Configuration["Jwt:Audience"];
+                options.RequireHttpsMetadata = true;
+            });
+        
+        //AuthZ (policies baserat på claims)
+        builder.Services.AddAuthorization();
+        
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
@@ -23,14 +43,11 @@ public class Program
         }
 
         app.UseHttpsRedirection();
-
+        
+        app.UseAuthentication();
         app.UseAuthorization();
 
-        var summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
-
+        app.MapControllers();
         
           
 

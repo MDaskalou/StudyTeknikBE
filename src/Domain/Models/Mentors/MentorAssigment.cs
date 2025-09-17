@@ -1,4 +1,4 @@
-﻿namespace Domain.Entities.Mentors
+﻿namespace Domain.Models.Mentors
 {
     //Koppling mellan Mentor (User) och Student (User).
     //TODO: Behövs denna klass? Kan vi inte bara ha en lista med studenter i User-klassen för mentorer?

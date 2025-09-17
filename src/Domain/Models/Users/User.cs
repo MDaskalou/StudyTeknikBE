@@ -1,8 +1,7 @@
 ﻿using Domain.Abstractions;
-using Domain.Common;
-using Domain.Users;
+using Domain.Models.Common;
 
-namespace Domain.Entities.Users
+namespace Domain.Models.Users
 {
     // Aggregate root för användare
     public sealed class User : IAggregateRoot

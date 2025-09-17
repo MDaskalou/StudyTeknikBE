@@ -1,6 +1,6 @@
 ﻿using Domain.Abstractions;
 
-namespace Domain.Entities.Diary
+namespace Domain.Models.Diary
 {
     //Todo: Dagbokpost per datum
     //Todo:Unik per(studnetid , entrydate) i db- konfiguration

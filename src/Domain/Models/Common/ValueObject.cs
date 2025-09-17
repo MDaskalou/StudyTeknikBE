@@ -1,4 +1,6 @@
-﻿namespace Domain.Common;
+﻿using System.Linq;
+
+namespace Domain.Models.Common;
 
 public abstract class ValueObject : IEquatable<ValueObject>
 {

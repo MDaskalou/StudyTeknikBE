@@ -1,4 +1,14 @@
-﻿namespace Application.Abstractions.IPersistence
+﻿using System.Threading;
+using Domain.Audit;
+using Domain.Entities;
+using Domain.Models.Classes;
+using Domain.Models.Diary;
+using Domain.Models.Mentors;
+using Domain.Models.Users;
+using Microsoft.EntityFrameworkCore;
+
+
+namespace Application.Abstractions.IPersistence
 {
     //TODO: implementera AppDbContext i infrastucture (DbContext)
     //TODO: Lägg till DbSets för entiteter
@@ -8,6 +18,16 @@
     //såsom att skapa, läsa, uppdatera och ta bort data.
     public interface IAppDbContext
     {
+        //DbSet
         
+        DbSet<UserEntity> Users { get; }
+        DbSet<DiaryEntryEntity> DiaryEntries { get; }
+        DbSet<WeeklySummaryEntity> WeeklySummaries { get; }
+        DbSet<ClassEntity> Classes { get; }
+        DbSet<EnrollmentEntity> Enrollments { get; }
+        DbSet<MentorAssigmentEntity> MentorAssignments { get; }
+        DbSet<AuditLogEntity> AuditLogs { get; }
+        
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

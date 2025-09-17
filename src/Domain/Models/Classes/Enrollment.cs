@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Domain.Classes
+﻿namespace Domain.Models.Classes
 {
     // Koppling mellan User och Class (many-to-many).
     // vi har many to many mellan User och Class,

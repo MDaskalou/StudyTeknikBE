@@ -1,4 +1,6 @@
-﻿namespace Application.Abstractions
+﻿using System;
+
+namespace Application.Abstractions
 {
     // TODO: Implementera i Infrastructure (UtcNow)
     // TODO: Använd i handlers istället för DateTime.UtcNow för testbarhet
@@ -12,5 +14,6 @@
     //vara användbart för testning, beroendehantering och flexibilitet i koden.
     public interface IDateTimeProvider
     {
+        DateTime UtcNow { get; }
     }
 }
