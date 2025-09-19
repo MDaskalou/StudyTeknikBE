@@ -1,4 +1,4 @@
-﻿namespace Application.Abstractions
+﻿namespace Application.Abstractions.IPersistence.Repositories
 {
     //Todo: implementera i Web(httpcontext.User -> ClaimsPrincipal)
     //Claims är en del av säkerhetsmodellen i .Net och används för att representera information om en användare.
@@ -9,5 +9,9 @@
 
     public interface ICurrentUserService
     {
+        Guid? UserId { get; }
+        string? RoleName { get; }
+        bool IsAuthenticated { get; }
+        bool IsInRole(string roleName);
     }
 }

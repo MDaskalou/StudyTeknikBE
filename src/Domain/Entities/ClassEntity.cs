@@ -6,6 +6,8 @@
         public DateTime CreatedAtUtc { get; set; }
         public DateTime UpdatedAtUtc { get; set; }
         
+        public Guid? TeacherId { get; set; }
+        
         //Egenskaper
         public string SchoolName { get; set; } = default!;
         public int Year { get; set; }

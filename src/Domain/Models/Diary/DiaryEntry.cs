@@ -45,7 +45,21 @@ namespace Domain.Models.Diary
             Text = newText;
             Touch();
         }
-        
+
+        public static DiaryEntry Rehydrate(Guid id, DateTime createdAtUtc, DateTime updatedAtUtc,
+            Guid studentId, DateOnly entryDate, string text)
+        {
+            return new DiaryEntry
+            {
+                Id = id,
+                CreatedAtUtc = createdAtUtc,
+                UpdatedAtUtc = updatedAtUtc,
+                StudentId = studentId,
+                EntryDate = entryDate,
+                Text = text ?? string.Empty
+            };
+        }
+
         private void Touch() => UpdatedAtUtc = DateTime.UtcNow;
 
     }

@@ -1,6 +1,8 @@
 ﻿using Application.Abstractions;                   // IDateTimeProvider, IAuditLogger
-using Application.Abstractions.IPersistence;      // IAppDbContext
-using Infrastructure.Persistence;                 // AppDbContext
+using Application.Abstractions.IPersistence;
+using Application.Abstractions.IPersistence.Repositories; // IAppDbContext
+using Infrastructure.Persistence;
+using Infrastructure.Persistence.Repositories; // AppDbContext
 using Infrastructure.Service;                    // DateTimeProvider, AuditLogger  (ev. Infrastructure.Service)
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +24,10 @@ namespace Infrastructure.DependencyInjection
             services.AddScoped<IAppDbContext>(sp => sp.GetRequiredService<AppDbContext>());
             services.AddScoped<IDateTimeProvider, DateTimeProvider>();
             services.AddScoped<IAuditLogger, AuditLogger>();
+            services.AddScoped<IClassRepository, ClassRepository>();
+            services.AddScoped<IDiaryRepository, DiaryRepository>();
+            services.AddScoped<IMentorRepository, MentorRepository>();
+
 
             return services;
         }
