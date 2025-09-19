@@ -1,11 +1,10 @@
 ﻿using System.Security.Claims;
 using Application.Abstractions;
 using Application.Abstractions.IPersistence.Repositories;
+using Microsoft.AspNetCore.Http;
 
-namespace StudyTeknik.Service
+namespace StudyTeknik.Services
 {
-    // TODO: Läser claims från HttpContext.User (registreras som Scoped)
-
     public sealed class CurrentUserService : ICurrentUserService
     {
         private readonly IHttpContextAccessor _http;
@@ -29,6 +28,7 @@ namespace StudyTeknik.Service
             User.FindFirst(ClaimTypes.Role)?.Value ?? User.FindFirst("role")?.Value;
 
         public bool IsInRole(string roleName) =>
-            User.IsInRole(roleName) || string.Equals(RoleName, roleName, StringComparison.OrdinalIgnoreCase);
+            User.IsInRole(roleName) ||
+            string.Equals(RoleName, roleName, StringComparison.OrdinalIgnoreCase);
     }
 }

@@ -28,6 +28,9 @@ namespace Infrastructure.Persistence.Configurations
 
             builder.HasIndex(c => new { c.SchoolName, c.Year, c.ClassName })
                 .IsUnique();
+            
+            builder.Property(c => c.TeacherId).IsRequired(false);
+            builder.HasIndex(c => c.TeacherId);
 
             // Metadata
             builder.Property(c => c.CreatedAtUtc)

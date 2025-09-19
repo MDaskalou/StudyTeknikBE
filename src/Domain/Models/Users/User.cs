@@ -120,6 +120,18 @@ namespace Domain.Models.Users
             ExternalSubject  = null;
             Touch();
         }
+        
+        public static User Rehydrate(Guid id, string firstName, string lastName, string email, Role role)
+        {
+            return new User
+            {
+                Id = id,
+                FirstName = firstName,
+                LastName = lastName,
+                Email = email,
+                Role = role
+            };
+        }
 
         // Uppdaterar senast-ändrad-tid. Anropas vid alla state-förändringar.
         private void Touch() => UpdatedAtUtc = DateTime.UtcNow;

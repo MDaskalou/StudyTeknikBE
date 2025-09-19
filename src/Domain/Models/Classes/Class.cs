@@ -1,41 +1,36 @@
-﻿using Domain.Abstractions;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Domain.Abstractions;
 
 namespace Domain.Models.Classes
 {
-    // TODO: Aggregate Root för skolklass.
-    //Aggregate menas att en klass är en rot i en trädstruktur av objekt.
-    //Many-to-one relation med User (en klass har många elever, en elev tillhör en klass).
-    //Todo: // - Unik kombination (SchoolName, Year, ClassName) i DB.
-    //Todo: Äger sina Enrollment-relationer i domänmodell.
-    //Enrollment menas relationen mellan User och Class.
-    // TODO: validera year (rimlig range), icke tomma strängar.
-
-    //Klassen som elever tillhör (t.ex. “9B på Bräckeskolan”).
     public class Class : IAggregateRoot
     {
-        //Identitet och Metadata 
+        // Identitet och metadata
         public Guid Id { get; private set; }
         public DateTime CreatedAtUtc { get; private set; }
         public DateTime UpdatedAtUtc { get; private set; }
-        
-        //Egenskaper
+
+        // Egenskaper
         public string SchoolName { get; private set; } = default!;
         public int Year { get; private set; }
         public string ClassName { get; private set; } = default!;
-        
-        //Relationer
+
+        // Relationer
         private readonly List<Enrollment> _enrollments = new();
         public IReadOnlyCollection<Enrollment> Enrollments => _enrollments.AsReadOnly();
-        
-        private Class() { }
-        
+
+        private Class() { } // för rehydrate
+
+        // Skapa ny klass i domänen (utan att ta id utifrån)
         public Class(string schoolName, int year, string className)
         {
-            SetIdentity();
+            SetIdentity();                  // sätter nytt Id + timestamps
             SetClassInfo(schoolName, year, className);
         }
-        
-        //Domänbeteende
+
+        // Domänbeteende
         public void EnrollStudent(Guid studentId)
         {
             if (studentId == Guid.Empty)
@@ -44,30 +39,43 @@ namespace Domain.Models.Classes
             if (_enrollments.Any(e => e.StudentId == studentId))
                 throw new InvalidOperationException("Student är redan inskriven i klassen.");
 
-            _enrollments.Add(new Enrollment(studentId, Id)); // lägg till kopplingen
+            _enrollments.Add(new Enrollment(studentId, Id));
             Touch();
         }
 
         public void UnenrollStudent(Guid studentId)
         {
-            var enrollment = _enrollments.FirstOrDefault(e => e.StudentId == studentId);
-            if (enrollment == null)
-                throw new InvalidOperationException("Student är inte inskriven i klassen.");
-            
+            var enrollment = _enrollments.FirstOrDefault(e => e.StudentId == studentId)
+                ?? throw new InvalidOperationException("Student är inte inskriven i klassen.");
+
             _enrollments.Remove(enrollment);
             Touch();
         }
-        
-        // ==== Hjälpmetoder ====
+
+        // Rehydrate från persistence (Entities)
+        public static Class Rehydrate(Guid id, DateTime createdAtUtc, DateTime updatedAtUtc,
+                                      string schoolName, int year, string className)
+        {
+            var c = new Class();
+            typeof(Class).GetProperty(nameof(Id))!.SetValue(c, id);
+            typeof(Class).GetProperty(nameof(CreatedAtUtc))!.SetValue(c, createdAtUtc);
+            typeof(Class).GetProperty(nameof(UpdatedAtUtc))!.SetValue(c, updatedAtUtc);
+            typeof(Class).GetProperty(nameof(SchoolName))!.SetValue(c, schoolName);
+            typeof(Class).GetProperty(nameof(Year))!.SetValue(c, year);
+            typeof(Class).GetProperty(nameof(ClassName))!.SetValue(c, className);
+            return c;
+        }
+
+        // Hjälpmetoder
         private void SetClassInfo(string schoolName, int year, string className)
         {
             if (string.IsNullOrWhiteSpace(schoolName))
-                throw new ArgumentException("School name krävs.", nameof(schoolName));
+                throw new ArgumentException("Skolnamn krävs.", nameof(schoolName));
             if (string.IsNullOrWhiteSpace(className))
-                throw new ArgumentException("Class name krävs.", nameof(className));
+                throw new ArgumentException("Klassnamn krävs.", nameof(className));
             if (year < 2000 || year > 2100)
                 throw new ArgumentOutOfRangeException(nameof(year), "Året måste vara mellan 2000 och 2100.");
-            
+
             SchoolName = schoolName.Trim();
             Year       = year;
             ClassName  = className.Trim();
@@ -82,7 +90,7 @@ namespace Domain.Models.Classes
             CreatedAtUtc = now;
             UpdatedAtUtc = now;
         }
-        
+
         private void Touch() => UpdatedAtUtc = DateTime.UtcNow;
     }
 }
