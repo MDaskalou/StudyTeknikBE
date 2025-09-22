@@ -70,7 +70,64 @@ public class Program
         
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+       builder.Services.AddSwaggerGen(c =>
+{
+    if (builder.Environment.IsDevelopment())
+    {
+        // X-UserId
+        c.AddSecurityDefinition("X-UserId", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+        {
+            In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+            Name = "X-UserId",
+            Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+            Description = "Dev auth: seed GUID för användare"
+        });
+
+        // X-Role
+        c.AddSecurityDefinition("X-Role", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+        {
+            In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+            Name = "X-Role",
+            Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
+            Description = "Dev auth: Student | Teacher | Mentor | Admin"
+        });
+
+        // Kräv båda scheman för alla operationer
+        c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+        {
+            {
+                new Microsoft.OpenApi.Models.OpenApiSecurityScheme { Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                    { Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme, Id = "X-UserId" }}, new string[] {}
+            },
+            {
+                new Microsoft.OpenApi.Models.OpenApiSecurityScheme { Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                    { Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme, Id = "X-Role" }}, new string[] {}
+            }
+        });
+    }
+    else
+    {
+        // PROD: Bearer/JWT i Swagger
+        c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+            Description = "Skriv: Bearer {token}"
+        });
+        c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+        {
+            {
+                new Microsoft.OpenApi.Models.OpenApiSecurityScheme { Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                    { Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme, Id = "Bearer" }}, new string[] {}
+            }
+        });
+    }
+});
+      
+        
 
         var app = builder.Build();
 
