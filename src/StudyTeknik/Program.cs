@@ -1,5 +1,6 @@
 using Application.Abstractions;
 using Application.Abstractions.IPersistence.Repositories;
+using Application.Security;
 using Infrastructure.DependencyInjection;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Seed;
@@ -61,6 +62,9 @@ public class Program
 
         builder.Services.AddAuthorization(opts =>
         {
+            opts.AddPolicy("Classes.Read",  AuthPolicies.RequireScope("classes:read"));
+            opts.AddPolicy("Classes.Manage",AuthPolicies.RequireScope("classes:manage"));
+            
             opts.AddPolicy("StudentOnly", policy => policy.RequireRole("Student"));
             opts.AddPolicy("TeacherOnly", policy => policy.RequireRole("Teacher"));
             opts.AddPolicy("MentorOnly", policy => policy.RequireRole("Mentor"));
