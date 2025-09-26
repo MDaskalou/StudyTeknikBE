@@ -46,6 +46,6 @@
         // Dessa metoder returnerar BARA generiska resultat
         public static OperationResult<T> Success(T value) => new(value, true, Error.None);
         public static OperationResult<T> Created(T value) => new(value, true, Error.None);
-        public static OperationResult<T> Failure(Error error) => new(default, false, error);
+        public static new OperationResult<T> Failure(Error error) => new(default, false, error);
     }
 }
