@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Domain.Abstractions.Enum;
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -32,7 +33,7 @@ namespace Infrastructure.Persistence.Seed
                 LastName = "Admin",
                 Email = "admin@demo.local",
                 SecurityNumber = "19700101-0000",   
-                Role = 2,
+                Role = UserRole.Admin,
                 ExternalProvider = "dev",
                 ExternalSubject = "admin",
                 ConsentGiven = false,                
@@ -46,7 +47,7 @@ namespace Infrastructure.Persistence.Seed
                 LastName = "Teacher",
                 Email = "teacher@demo.local",
                 SecurityNumber = "19700101-0001",   
-                Role = 1,
+                Role = UserRole.Teacher,
                 ExternalProvider = "dev",
                 ExternalSubject = "teacher",
                 ConsentGiven = false,
@@ -60,7 +61,7 @@ namespace Infrastructure.Persistence.Seed
                 LastName = "Mentor",
                 Email = "mentor@demo.local",
                 SecurityNumber = "19700101-0002",   
-                Role = 3,
+                Role = UserRole.Mentor,
                 ExternalProvider = "dev",
                 ExternalSubject = "mentor",
                 ConsentGiven = false,
@@ -75,7 +76,7 @@ namespace Infrastructure.Persistence.Seed
                 LastName = "Student",
                 Email = "student@demo.local",
                 SecurityNumber = "19700101-0003",   
-                Role = 0,
+                Role = UserRole.Student,
                 ExternalProvider = "dev",
                 ExternalSubject = "student",
                 ConsentGiven = false,

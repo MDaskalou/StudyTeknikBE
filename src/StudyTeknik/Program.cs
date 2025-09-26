@@ -1,6 +1,8 @@
 using Application.Abstractions;
 using Application.Abstractions.IPersistence.Repositories;
 using Application.Security;
+using Application.Student.Queries.GetAllStudents;
+using Domain.Models.Users;
 using Infrastructure.DependencyInjection;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Seed;
@@ -8,7 +10,8 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using StudyTeknik.Middleware;
 using StudyTeknik.Service;
-
+using MediatR;
+using FluentValidation;
 namespace StudyTeknik;
 
 public class Program
@@ -62,14 +65,76 @@ public class Program
 
         builder.Services.AddAuthorization(opts =>
         {
-            opts.AddPolicy("Classes.Read",  AuthPolicies.RequireScope("classes:read"));
-            opts.AddPolicy("Classes.Manage",AuthPolicies.RequireScope("classes:manage"));
+            // Dev-vänlig variant för Users.Manage
+            opts.AddPolicy("Users.Manage", policy =>
+            {
+                policy.RequireAuthenticatedUser();
+                policy.RequireAssertion(ctx =>
+                    // DevAuth: Admin-roll
+                    ctx.User.IsInRole("Admin")
+                    // Bearer: scope-claim innehåller users:manage
+                    || ctx.User.HasClaim(c =>
+                        c.Type == "scope" &&
+                        c.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                            .Contains("users:manage"))
+                );
+            });
+            opts.AddPolicy("Users.Read", policy =>
+            {
+                policy.RequireAuthenticatedUser();
+                policy.RequireAssertion(ctx =>
+                    // DevAuth: tillåt alla inloggade roller att läsa
+                    ctx.User.IsInRole("Admin")  ||
+                    ctx.User.IsInRole("Teacher")||
+                    ctx.User.IsInRole("Mentor") ||
+                    ctx.User.IsInRole("Student")
+                    // Bearer/JWT: alternativ via scope-claim
+                    || ctx.User.HasClaim(c =>
+                        c.Type == "scope" &&
+                        c.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                            .Contains("users:read"))
+                );
+            });
+
+            // (dina övriga policies)
+            opts.AddPolicy("Classes.Read", policy =>
+            {
+                policy.RequireAuthenticatedUser();
+                policy.RequireAssertion(ctx =>
+                    ctx.User.HasClaim(c => c.Type == "scope" &&
+                                           c.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                                               .Contains("classes:read")));
+            });
+
+            opts.AddPolicy("Classes.Manage", policy =>
+            {
+                policy.RequireAuthenticatedUser();
+                policy.RequireAssertion(ctx =>
+                    ctx.User.HasClaim(c => c.Type == "scope" &&
+                                           c.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries)
+                                               .Contains("classes:manage")));
+            });
             
             opts.AddPolicy("StudentOnly", policy => policy.RequireRole("Student"));
             opts.AddPolicy("TeacherOnly", policy => policy.RequireRole("Teacher"));
             opts.AddPolicy("MentorOnly", policy => policy.RequireRole("Mentor"));
             opts.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+
+           
+            
+
         });
+        
+        // MediatR
+        builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+        builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetAllStudentsHandler).Assembly));
+        builder.Services.AddMediatR(cfg =>
+            cfg.RegisterServicesFromAssembly(typeof(CreateStudentHandler).Assembly));
+        
+        // FluentValidation
+        builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
+        builder.Services.AddValidatorsFromAssembly (typeof(CreateStudentHandler).Assembly);
+
         
         
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
