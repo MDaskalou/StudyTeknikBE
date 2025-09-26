@@ -7,6 +7,7 @@
         public DateTime UpdatedAtUtc { get; set; }
         
         public Guid? TeacherId { get; set; }
+        public Guid? MentorId  { get; set; }
         
         //Egenskaper
         public string SchoolName { get; set; } = default!;

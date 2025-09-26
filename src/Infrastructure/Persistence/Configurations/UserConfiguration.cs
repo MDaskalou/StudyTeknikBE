@@ -34,10 +34,14 @@ namespace Infrastructure.Persistence.Configurations
 
                 builder.Property(u => u.FirstName).IsRequired().HasMaxLength(100);
                 builder.Property(u => u.LastName). IsRequired().HasMaxLength(100);
-                builder.Property(u => u.Role).     IsRequired();
 
                 builder.Property(u => u.CreatedAtUtc).IsRequired();
                 builder.Property(u => u.UpdatedAtUtc).IsRequired();
+                
+                builder.Property(u => u.Role)
+                    .HasConversion<int>()
+                    .IsRequired();
+                builder.HasIndex(u => u.Role);
 
                 // Viktigt: PasswordHash är object i entiteten → ignorera tills du bestämt typ
                 builder.Ignore(u => u.PasswordHash);
