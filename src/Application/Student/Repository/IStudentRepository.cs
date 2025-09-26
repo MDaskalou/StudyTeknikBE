@@ -8,6 +8,8 @@ namespace Application.Student.Repository
         Task<IReadOnlyList<StudentDetailsDto>> GetAllAsync(CancellationToken ct);
         Task<GetStudentByIdDto?> GetByIdAsync(Guid id, CancellationToken ct);
         
+        Task<UserEntity?> GetTrackedByIdAsync(Guid id, CancellationToken ct);
+        
         void Add(UserEntity user, Guid classId);
     }
 }

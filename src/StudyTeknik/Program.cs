@@ -1,3 +1,4 @@
+using Application;
 using Application.Abstractions;
 using Application.Abstractions.IPersistence.Repositories;
 using Application.Security;
@@ -23,7 +24,12 @@ public class Program
         
 
         // Add services to the container.
-        builder.Services.AddControllers();
+        builder.Services.AddControllers()
+            .AddNewtonsoftJson();
+        
+        
+        builder.Services.AddApplicationServices();
+
         builder.Services.AddInfrastructure(builder.Configuration);
         
         if (builder.Environment.IsDevelopment())

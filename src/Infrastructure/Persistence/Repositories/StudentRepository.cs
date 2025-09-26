@@ -38,7 +38,11 @@ namespace Infrastructure.Persistence.Repositories
                 .FirstOrDefaultAsync(ct);
         }
 
-        // === ERSÄTT CREATEASYNC MED DENNA METOD ===
+        public async Task<UserEntity?> GetTrackedByIdAsync(Guid id, CancellationToken ct)
+        {
+            return await _db.Users.FirstOrDefaultAsync(u => u.Id == id && u.Role == UserRole.Student, ct);
+        }
+
         public void Add(UserEntity user, Guid classId)
         {
             // 1. Skapa den relaterade "enrollment"-entiteten
@@ -55,5 +59,7 @@ namespace Infrastructure.Persistence.Repositories
             _db.Users.Add(user);
             _db.Enrollments.Add(enrollment);
         }
+        
+        
     }
 }
