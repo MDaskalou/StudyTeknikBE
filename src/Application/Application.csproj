@@ -9,9 +9,6 @@
     <ItemGroup>
       <Folder Include="Common\Exceptions\" />
       <Folder Include="Teacher\Commands\" />
-      <Folder Include="Teacher\Dtos\" />
-      <Folder Include="Teacher\Queries\" />
-      <Folder Include="Teacher\Repository\" />
     </ItemGroup>
 
     <ItemGroup>

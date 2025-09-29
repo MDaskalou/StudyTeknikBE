@@ -1,7 +1,8 @@
 ﻿using Application.Abstractions;                    // IDateTimeProvider, IAuditLogger
 using Application.Abstractions.IPersistence;       // IAppDbContext
 using Application.Abstractions.IPersistence.Repositories;
-using Application.Student.Repository; // repo-interfacen (Application-lagret)
+using Application.Student.Repository;
+using Application.Teacher.Repository; // repo-interfacen (Application-lagret)
 using Infrastructure.Persistence;                  // AppDbContext
 using Infrastructure.Persistence.Repositories;     // repo-implementationer (Infrastructure)
 using Infrastructure.Service;                      // DateTimeProvider, AuditLogger
@@ -41,10 +42,9 @@ namespace Infrastructure.DependencyInjection
             // 4) Repository-implementationer (Infrastructure) kopplas till Application-interfacen
             services.AddScoped<IClassRepository, ClassRepository>();
             services.AddScoped<IDiaryRepository, DiaryRepository>();
-            services.AddScoped<IMentorRepository, MentorRepository>();
-
-            // Lägg till STUDENT-repository (för Get All Students)
+            
             services.AddScoped<IStudentRepository, StudentRepository>();
+            services.AddScoped<ITeacherRepository, TeacherRepository>();
 
             // (Ev. fler repos här …)
 
