@@ -1,6 +1,7 @@
 ﻿using Application.Common.Results;
 using Application.Student.Commands;
 using Application.Student.Commands.CreateStudent;
+using Application.Student.Commands.DeleteStudent;
 using Application.Student.Commands.UpdateStudent;
 using Application.Student.Dtos;
  using Application.Student.Queries.GetAllStudents;
@@ -116,6 +117,24 @@ using Application.Student.Dtos;
                  // Vid lyckad patch, returnera 204 No Content
                  return NoContent();
              }
+
+         [HttpDelete("{id:guid}")]
+         public async Task<IActionResult> DeleteStudent(Guid id, CancellationToken ct)
+         {
+             var command = new DeleteStudentCommand(id);
+             var result = await _mediator.Send(command, ct);
+             
+                if (result.IsFailure)
+                {
+                    return result.Error.Type switch
+                    {
+                        ErrorType.NotFound => NotFound(result.Error),
+                        _ => BadRequest(result.Error)
+                    };
+                }
+                
+                return NoContent();
+         }
      }
  
          
