@@ -1,7 +1,10 @@
-﻿using Application.Teacher.Dtos;
+﻿using Application.Common.Results;
+using Application.Teacher.Dtos;
 using Application.Teacher.Repository;
 using Domain.Abstractions.Enum;
 using Application.Mapper;
+using Domain.Entities;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Repositories
@@ -62,6 +65,33 @@ namespace Infrastructure.Persistence.Repositories
                 .Select(TeacherMapper.ToDetailsDto)
                 .ToList();
             return teacherDto;
+        }
+        
+        public async Task<bool> EmailExistAsync(string email, CancellationToken ct)
+        {
+            return await _db.Users
+                .AsNoTracking()
+                .AnyAsync(u => u.Email == email, ct);
+        }
+
+        public async Task<OperationResult> AddAsync(UserEntity user, CancellationToken ct)
+        {
+            try
+            {
+                _db.Users.Add(user);
+                await _db.SaveChangesAsync(ct);
+                return OperationResult.Success();
+
+            }
+            catch (DbUpdateException ex)
+            {
+                    if(ex.InnerException is SqlException sqlEx && (sqlEx.Number == 2627 || sqlEx.Number == 2601))
+                    {
+                        return OperationResult.Failure(Error.Conflict("Teacher.EmailAlreadyExists", "En användare med denna e-postadress finns redan."));
+                    }
+                    
+                    return OperationResult.Failure(Error.InternalServiceError("Database.Error", "Ett fel uppstod vid lagring av läraren i databasen."));
+            }
         }
     }
 }
