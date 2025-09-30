@@ -2,11 +2,8 @@
 {
     public sealed record CreateTeacherDto(
         Guid Id,
-        string FirstName,
-        string LastName,
-        string Email,
-        string SecurityNumber,
-        string Password
+        string Fullname,
+        string Email
     );
     
         

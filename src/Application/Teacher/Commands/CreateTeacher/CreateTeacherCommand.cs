@@ -8,7 +8,6 @@ namespace Application.Teacher.Commands.CreateTeacher
         string FirstName,
         string LastName,
         string Email,
-        string SecurityNumber,
-        string Password
+        string SecurityNumber
     ) : IRequest<OperationResult<CreateTeacherDto>>;
 }
