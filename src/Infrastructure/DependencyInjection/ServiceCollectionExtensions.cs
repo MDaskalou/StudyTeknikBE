@@ -46,7 +46,8 @@ namespace Infrastructure.DependencyInjection
             services.AddScoped<IStudentRepository, StudentRepository>();
             services.AddScoped<ITeacherRepository, TeacherRepository>();
 
-            // (Ev. fler repos här …)
+            // 5) PasswordHasher
+            services.AddScoped<IPasswordHasher, Security.PasswordHasher>();
 
             return services;
         }

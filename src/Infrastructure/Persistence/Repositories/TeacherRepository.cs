@@ -2,6 +2,7 @@
 using Application.Teacher.Repository;
 using Domain.Abstractions.Enum;
 using Application.Mapper;
+using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Repositories
@@ -62,6 +63,11 @@ namespace Infrastructure.Persistence.Repositories
                 .Select(TeacherMapper.ToDetailsDto)
                 .ToList();
             return teacherDto;
+        }
+
+        public void Add(UserEntity user)
+        {
+            _db.Users.Add(user);
         }
     }
 }

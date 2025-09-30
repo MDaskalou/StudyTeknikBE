@@ -10,6 +10,8 @@ namespace Application.Teacher.Repository
          Task <GetTeacherByIdDto?> GetByIdAsync(Guid id, CancellationToken ct);
          
          Task<IReadOnlyList<GetAllTeachersDto>> GetAllAsync(CancellationToken ct);
+         
+         void Add(UserEntity user);
         
     }
 }

@@ -1,4 +1,6 @@
-﻿using Application.Teacher.Dtos;
+﻿using Application.Common.Results;
+using Application.Teacher.Commands.CreateTeacher;
+using Application.Teacher.Dtos;
 using Application.Teacher.Queries.GetAllTeachers;
 using Application.Teacher.Queries.GetTeacherById;
 using Application.Teacher.Repository;
@@ -9,18 +11,16 @@ using Microsoft.AspNetCore.Mvc;
 namespace StudyTeknik.Controller
 {
     [ApiController]
-    [Route("api/teacher")]
+    [Route("api/teachers")]
     [Authorize(Roles = "Admin")]
 
     public sealed class TeacherController : ControllerBase
     {
-        private readonly ITeacherRepository _teacherRepository;
         private readonly IMediator _mediator;
 
-        public TeacherController(ITeacherRepository teacherRepository, IMediator mediator)
+        public TeacherController( IMediator mediator)
         {
             _mediator = mediator;
-            _teacherRepository = teacherRepository;
         }
 
         [HttpGet("{id:guid}")]
@@ -44,11 +44,21 @@ namespace StudyTeknik.Controller
             
             var result = await _mediator.Send(query, ct);
             
-            if (result.IsFailure)
-            {
-                return NotFound(result.Error);
-            }
             return Ok(result.Value);
+        }
+        
+        [HttpPost("CreateTeacher")]
+        public async Task<IActionResult> CreateTeacher([FromBody] CreateTeacherCommand command, CancellationToken ct)
+        {
+            var result = await _mediator.Send(command, ct);
+            if (result.IsFailure)
+                return result.Error.Type switch
+                {
+                    ErrorType.Conflict => Conflict(result.Error),
+                    _ => BadRequest(result.Error)
+                };
+            
+            return CreatedAtAction(nameof(GetTeacherById), new { id = result.Value!.Id }, result.Value);
         }
     }
 }
