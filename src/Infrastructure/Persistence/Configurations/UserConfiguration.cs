@@ -43,8 +43,6 @@ namespace Infrastructure.Persistence.Configurations
                     .IsRequired();
                 builder.HasIndex(u => u.Role);
 
-                // Viktigt: PasswordHash är object i entiteten → ignorera tills du bestämt typ
-                builder.Ignore(u => u.PasswordHash);
                 // ev. fler fält att ignorera om de är object/komplexa
             }
         }

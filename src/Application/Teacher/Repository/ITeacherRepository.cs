@@ -9,12 +9,16 @@ namespace Application.Teacher.Repository
 {
     public interface ITeacherRepository
     {
+        //Read
          Task <GetTeacherByIdDto?> GetByIdAsync(Guid id, CancellationToken ct);
-         
          Task<IReadOnlyList<GetAllTeachersDto>> GetAllAsync(CancellationToken ct);
          
-         Task<bool>EmailExistAsync(string email, CancellationToken ct);
+         //Check
          
+         Task<bool>EmailExistsAsync(string email, CancellationToken ct);
+        //Write
+         Task<UserEntity?> GetTrackedByIdAsync(Guid id, CancellationToken ct);
+         Task<OperationResult> UpdateAsync(UserEntity user, CancellationToken ct);
          Task<OperationResult>AddAsync(UserEntity user, CancellationToken ct);
          
         

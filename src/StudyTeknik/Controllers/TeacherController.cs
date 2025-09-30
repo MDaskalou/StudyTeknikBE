@@ -1,5 +1,6 @@
 ﻿using Application.Common.Results;
 using Application.Teacher.Commands.CreateTeacher;
+using Application.Teacher.Commands.UpdateTeacher;
 using Application.Teacher.Dtos;
 using Application.Teacher.Queries.GetAllTeachers;
 using Application.Teacher.Queries.GetTeacherById;
@@ -59,6 +60,31 @@ namespace StudyTeknik.Controller
                 };
             
             return CreatedAtAction(nameof(GetTeacherById), new { id = result.Value!.Id }, result.Value);
+        }
+
+        [HttpPut("UpdateTeacher/{id:guid}")]
+        public async Task<IActionResult> UpdateTeacher(Guid id, [FromBody] UpdateTeacherCommand command,
+            CancellationToken ct)
+        {
+            if (id != command.Id)
+            {
+                var error = Error.Validation("Id.Mismatch", "ID i URL matchar inte ID i request body.");
+                return BadRequest(error);
+            }
+
+            var result = await _mediator.Send(command, ct);
+
+            if (result.IsFailure)
+            {
+                return result.Error.Type switch
+                {
+                    ErrorType.NotFound => NotFound(result.Error),
+                    ErrorType.Conflict => Conflict(result.Error),
+                    _ => BadRequest(result.Error)
+                };
+            }
+
+            return NoContent();
         }
     }
 }

@@ -43,7 +43,7 @@ namespace Application.Teacher.Commands.CreateTeacher
 
             // Kontrollera om e-post existerar via repositoryt
             var email = command.Email.Trim().ToLowerInvariant();
-            if (await _teacherRepository.EmailExistAsync(email, ct)) // Korrekt metodnamn
+            if (await _teacherRepository.EmailExistsAsync(email, ct)) // Korrekt metodnamn
             {
                 var error = Error.Conflict("Teacher.EmailAlreadyExists", $"En användare med e-postadressen '{email}' finns redan.");
                 return OperationResult<CreateTeacherDto>.Failure(error);

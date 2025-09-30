@@ -67,7 +67,7 @@ namespace Infrastructure.Persistence.Repositories
             return teacherDto;
         }
         
-        public async Task<bool> EmailExistAsync(string email, CancellationToken ct)
+        public async Task<bool> EmailExistsAsync(string email, CancellationToken ct)
         {
             return await _db.Users
                 .AsNoTracking()
@@ -93,5 +93,32 @@ namespace Infrastructure.Persistence.Repositories
                     return OperationResult.Failure(Error.InternalServiceError("Database.Error", "Ett fel uppstod vid lagring av läraren i databasen."));
             }
         }
+
+        public async Task<OperationResult> UpdateAsync(UserEntity user, CancellationToken ct)
+        {
+            try
+            {
+            _db.Users.Update(user);
+            await _db.SaveChangesAsync(ct);
+            return OperationResult.Success();
+                
+            }
+            catch (DbUpdateException ex)
+            {
+                return OperationResult.Failure(
+                    Error.InternalServiceError("Database.Error", "Ett fel uppstod vid uppdatering av läraren i databasen."));
+            }
+        }
+        
+        //använder inte AsNoTracking här eftersom vi vill spåra entiteten för uppdatering
+        //EntityFramwork kommer att spåra ändringar på den här entiteten
+        //Jag lägger den här metoden i repositoryt eftersom det är repositoryts ansvar att hantera databasoperationer
+        //och det är bättre att hålla databaslogiken inkapslad i repository än att sprida den över hela applikationen
+        
+        public async Task<UserEntity?> GetTrackedByIdAsync(Guid id, CancellationToken ct)
+        {
+            
+            return await _db.Users.FirstOrDefaultAsync(u => u.Id == id && u.Role == UserRole.Teacher, ct);
+        }
     }
-}
+}   
