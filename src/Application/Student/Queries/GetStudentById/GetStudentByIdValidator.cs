@@ -4,8 +4,7 @@ using FluentValidation;
 namespace Application.Student.Queries.GetStudentById
 {
     public sealed class GetStudentByIdValidator : AbstractValidator<GetStudentByIdQuery>
-        {
-            public GetStudentByIdValidator() => RuleFor(s => s.Id).NotEmpty();
-
-        }
+    {
+        public GetStudentByIdValidator() => RuleFor(s => s.Id).NotEmpty();
+    }
 }

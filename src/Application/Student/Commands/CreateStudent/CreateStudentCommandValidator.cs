@@ -20,9 +20,6 @@ namespace Application.Student.Commands.CreateStudent
                 .MaximumLength(100).WithMessage("Email cannot exceed 100 characters.");
             RuleFor(s=>s.ClassId)
                 .NotEmpty().WithMessage("ClassId is required.");
-            RuleFor(s => s.Password)
-                .NotEmpty().WithMessage("Lösenord får inte vara tomt.")
-                .MinimumLength(8).WithMessage("Lösenordet måste vara minst 8 tecken långt.");
             RuleFor(s => s.SecurityNumber)
                 .NotEmpty().WithMessage("Personnummer får inte vara tom.");
         }

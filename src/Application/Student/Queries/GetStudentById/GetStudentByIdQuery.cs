@@ -1,9 +1,10 @@
 ﻿using Application.Common.Results;
 using Application.Student.Dtos;
 using MediatR;
+using System;
 
 namespace Application.Student.Queries.GetStudentById
-
 {
-    public sealed record GetStudentByIdQuery(Guid Id) : IRequest<OperationResult<GetStudentByIdDto>>;
+    public sealed record GetStudentByIdQuery(Guid Id) 
+        : IRequest<OperationResult<GetStudentByIdDto?>>;
 }

@@ -1,65 +1,58 @@
-﻿using Application.Abstractions.IPersistence;
-using Application.Common.Results;
+﻿using Application.Common.Results;
+using Application.Student.Commands.UpdateStudent;
 using Application.Student.Repository;
 using FluentValidation;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Application.Student.Commands.UpdateStudent
 {
-    public class UpdateStudentCommandHandler : IRequestHandler<UpdateStudentCommand, OperationResult>
+    public sealed class UpdateStudentCommandHandler : IRequestHandler<UpdateStudentCommand, OperationResult>
     {
-        //Dependencies
+        // FIX 1: Beroendet till IAppDbContext är nu borta
         private readonly IStudentRepository _studentRepository;
-        private readonly IAppDbContext _db;
         private readonly IValidator<UpdateStudentCommand> _validator;
-        
-        //Constructor
-        public UpdateStudentCommandHandler(IStudentRepository studentRepository, IAppDbContext db, IValidator<UpdateStudentCommand> validator)
+
+        public UpdateStudentCommandHandler(IStudentRepository studentRepository, IValidator<UpdateStudentCommand> validator)
         {
             _studentRepository = studentRepository;
-            _db = db;
             _validator = validator;
         }
 
-        public async Task<OperationResult> Handle(UpdateStudentCommand request, CancellationToken cancellationToken)
+        public async Task<OperationResult> Handle(UpdateStudentCommand command, CancellationToken ct)
         {
-            // Validera inkommande data
-            var validationResult = await _validator.ValidateAsync(request, cancellationToken);
+            var validationResult = await _validator.ValidateAsync(command, ct);
             if (!validationResult.IsValid)
             {
-                var error = Error.Validation("Validation.Error", string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)));
+                var error = Error.Validation("Validation.Error", string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage).ToArray()));
                 return OperationResult.Failure(error);
             }
-            
-            // FIX 1: Hämta den spårbara ENTITETEN (originalet), inte DTO:n (kopian)
-            var student = await _studentRepository.GetTrackedByIdAsync(request.Id, cancellationToken);
-            if (student is null)
+
+            var userEntity = await _studentRepository.GetTrackedByIdAsync(command.Id, ct);
+            if (userEntity is null)
             {
-                var error = Error.NotFound("Student.NotFound", $"Student med ID {request.Id} kunde inte hittas.");
-                return OperationResult.Failure(error);
+                return OperationResult.Failure(Error.NotFound("Student.NotFound", $"Student med ID {command.Id} kunde inte hittas."));
             }
-            
-            // Kontrollera om e-posten ändrats och redan är upptagen
-            var newEmail = request.Email.Trim().ToLowerInvariant();
-            if (student.Email != newEmail && await _db.Users.AnyAsync(u => u.Email == newEmail, cancellationToken))
+
+            var newEmail = command.Email.Trim().ToLowerInvariant();
+            // FIX 2: Använder repositoryt för att kolla om e-post finns
+            if (userEntity.Email != newEmail && await _studentRepository.EmailExistsAsync(newEmail, ct))
             {
-                var error = Error.Conflict("Student.EmailAlreadyExists", "Den nya e-postadressen används redan av en annan användare.");
-                return OperationResult.Failure(error);
+                return OperationResult.Failure(Error.Conflict("Student.EmailAlreadyExists", "Den nya e-postadressen används redan."));
             }
-            
-            // FIX 2: Använd "request" istället för "command" och uppdatera entitetens fält
-            student.FirstName = request.FirstName.Trim();
-            student.LastName = request.LastName.Trim();
-            student.Email = newEmail;
-            student.SecurityNumber = request.SecurityNumber.Trim();
-            student.UpdatedAtUtc = DateTime.UtcNow;
-            
-            // Spara ändringarna till databasen
-            await _db.SaveChangesAsync(cancellationToken);
-            
-            // Returnera ett lyckat resultat
-            return OperationResult.Success();
+
+            // Uppdatera entiteten i minnet
+            userEntity.FirstName = command.FirstName.Trim();
+            userEntity.LastName = command.LastName.Trim();
+            userEntity.Email = newEmail;
+            userEntity.SecurityNumber = command.SecurityNumber.Trim();
+            userEntity.UpdatedAtUtc = DateTime.UtcNow;
+
+            // FIX 3: Anropa repositoryts UpdateAsync-metod som hanterar SaveChanges
+            return await _studentRepository.UpdateAsync(userEntity, ct);
         }
     }
 }
