@@ -1,12 +1,14 @@
 ﻿using Application.Common.Results;
 using Application.Teacher.Commands.CreateTeacher;
 using Application.Teacher.Commands.UpdateTeacher;
+using Application.Teacher.Commands.UpdateTeacherDetails;
 using Application.Teacher.Dtos;
 using Application.Teacher.Queries.GetAllTeachers;
 using Application.Teacher.Queries.GetTeacherById;
 using Application.Teacher.Repository;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 
 namespace StudyTeknik.Controller
@@ -84,6 +86,25 @@ namespace StudyTeknik.Controller
                 };
             }
 
+            return NoContent();
+        }
+        [HttpPatch("UpdateTeacher/{id:guid}")]
+        public async Task<IActionResult> UpdateTeacherDetails(Guid id, [FromBody] 
+            JsonPatchDocument<UpdateTeacherDetailsDto> patchDoc, CancellationToken ct)
+        {
+            var command = new UpdateTeacherDetailsCommand(id, patchDoc);
+            
+            var result = await _mediator.Send(command, ct);
+
+            if (result.IsFailure)
+            {
+                return result.Error.Type switch
+                {
+                    ErrorType.NotFound => NotFound(result.Error),
+                    ErrorType.Conflict => Conflict(result.Error),
+                    _ => BadRequest(result.Error)
+                };
+            }
             return NoContent();
         }
     }
