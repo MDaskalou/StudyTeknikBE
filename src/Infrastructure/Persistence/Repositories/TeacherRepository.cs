@@ -120,5 +120,18 @@ namespace Infrastructure.Persistence.Repositories
             
             return await _db.Users.FirstOrDefaultAsync(u => u.Id == id && u.Role == UserRole.Teacher, ct);
         }
+        
+        public async Task<OperationResult> DeleteAsync(Guid id, CancellationToken ct)
+        {
+            var rowsAffected = await _db.Users
+                .Where (u => u.Id == id && u.Role == UserRole.Teacher)
+                .ExecuteDeleteAsync(ct);
+
+            if (rowsAffected == 0)
+            {
+                return OperationResult.Failure(Error.NotFound("Teacher.NotFound", $"Lärare med ID {id} kunde inte hittas."));
+            }
+            return OperationResult.Success();
+        }
     }
 }   

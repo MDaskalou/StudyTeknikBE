@@ -1,5 +1,6 @@
 ﻿using Application.Common.Results;
 using Application.Teacher.Commands.CreateTeacher;
+using Application.Teacher.Commands.DeleteTeacher;
 using Application.Teacher.Commands.UpdateTeacher;
 using Application.Teacher.Commands.UpdateTeacherDetails;
 using Application.Teacher.Dtos;
@@ -105,6 +106,22 @@ namespace StudyTeknik.Controller
                     _ => BadRequest(result.Error)
                 };
             }
+            return NoContent();
+        }
+
+        [HttpDelete("DeleteTeacher/{id:guid}")]
+        public async Task<IActionResult> DeleteTeacher(Guid id, CancellationToken ct)
+        {
+            var command = new DeleteTeacherCommand(id);
+            var result = await _mediator.Send(command, ct);
+
+            if (result.IsFailure)
+            {
+                return result.Error.Type == ErrorType.NotFound
+                    ? NotFound(result.Error)
+                    : BadRequest(result.Error);
+            }
+
             return NoContent();
         }
     }

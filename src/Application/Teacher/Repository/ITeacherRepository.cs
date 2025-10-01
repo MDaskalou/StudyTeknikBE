@@ -21,6 +21,8 @@ namespace Application.Teacher.Repository
          Task<OperationResult> UpdateAsync(UserEntity user, CancellationToken ct);
          Task<OperationResult>AddAsync(UserEntity user, CancellationToken ct);
          
+         Task<OperationResult> DeleteAsync(Guid id, CancellationToken ct);
+         
         
     }
 }
