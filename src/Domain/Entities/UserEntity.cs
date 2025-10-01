@@ -20,6 +20,5 @@ namespace Domain.Entities
         public bool ConsentGiven { get; set; }
         public DateTime? ConsentGivenAtUtc { get; set; }
         public string? ConsentSetby { get; set; }
-        public string? PasswordHash { get; set; }  
     }
 }
