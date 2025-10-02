@@ -1,27 +1,44 @@
 ﻿using Application.Abstractions;
 using Application.Abstractions.IPersistence.Repositories;
+using Application.Common.Results;
+using Application.Diary.Commands.CreateDiary;
+using Application.Diary.Dtos;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace StudyTeknik.Controllers
 {
-    [Authorize(Policy = "StudentOnly")]
     [ApiController]
     [Route("api/diary")]
+    [Authorize]
+
     public sealed class DiaryController : ControllerBase
     {
-        private readonly ICurrentUserService _current;
-        private readonly IDiaryRepository _diaries;
+        private readonly IMediator _mediator; 
+        public DiaryController(IMediator mediator) => _mediator = mediator;
 
-        public DiaryController(ICurrentUserService current, IDiaryRepository diaries)
-            => (_current, _diaries) = (current, diaries);
-
-        [HttpGet("my")]
-        public async Task<IActionResult> GetMyEntries(CancellationToken ct)
+        [HttpPost]
+        [Authorize(Roles = "Student")] 
+        public async Task<IActionResult> CreateDiaryEntry([FromBody]  CreateDiaryCommand command, CancellationToken ct)
         {
-            if (!_current.UserId.HasValue) return Unauthorized();
-            var list = await _diaries.GetByStudentAsync(_current.UserId.Value, ct);
-            return Ok(list);
+            var result = await _mediator.Send(command, ct);
+
+            if (result.IsFailure)
+            {
+                return result.Error.Type switch
+                {
+                    ErrorType.Conflict => Conflict(result.Error),
+                    ErrorType.Validation => BadRequest(result.Error),
+                    _ => BadRequest()
+                };
+            }
+            
+            return Created($"/api/diaries/{result.Value!.Id}", result.Value);
+
         }
+            
+        
     }
 }

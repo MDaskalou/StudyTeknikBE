@@ -9,9 +9,9 @@ namespace Infrastructure.Persistence.Configurations
     // Den ska innehålla all nödvändig konfiguration för att mappa DiaryEntry-entiteten till databastabellen.
     // T.ex. Tabellnamn, primärnyckel, egenskaper, relationer etc.
 
-    public class DiaryEntryConfiguration : IEntityTypeConfiguration<DiaryEntryEntity>
+    public class DiaryEntryConfiguration : IEntityTypeConfiguration<DiaryEntity>
     {
-        public void Configure(EntityTypeBuilder<DiaryEntryEntity> builder)
+        public void Configure(EntityTypeBuilder<DiaryEntity> builder)
         {
             builder.ToTable("DiaryEntries", "dbo");
             builder.HasKey(de => de.Id);

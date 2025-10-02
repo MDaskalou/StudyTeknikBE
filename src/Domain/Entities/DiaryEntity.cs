@@ -1,6 +1,6 @@
 ﻿namespace Domain.Entities
 {
-    public sealed class DiaryEntryEntity
+    public sealed class DiaryEntity
     {
         public Guid Id { get; set; }
         public DateTime CreatedAtUtc { get; set; }

@@ -119,19 +119,19 @@ namespace Infrastructure.Persistence.Seed
             await db.SaveChangesAsync(ct);
 
             // Diary entries (student)
-            var d1 = new DiaryEntryEntity
+            var d1 = new DiaryEntity
             {
                 Id = Guid.NewGuid(), StudentId = StudentId,
                 EntryDate = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-1)),
                 Text = "Första anteckningen.", CreatedAtUtc = now, UpdatedAtUtc = now
             };
-            var d2 = new DiaryEntryEntity
+            var d2 = new DiaryEntity
             {
                 Id = Guid.NewGuid(), StudentId = StudentId,
                 EntryDate = DateOnly.FromDateTime(DateTime.UtcNow.Date),
                 Text = "Andra anteckningen.", CreatedAtUtc = now, UpdatedAtUtc = now
             };
-            await db.DiaryEntries.AddRangeAsync(d1, d2);
+            await db.Diaries.AddRangeAsync(d1, d2);
             await db.SaveChangesAsync(ct);
 
             logger?.LogInformation("Seed klar: admin/teacher/mentor/student + klasser, enrollment, mentorassignment, diary entries.");
