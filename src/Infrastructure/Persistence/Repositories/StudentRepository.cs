@@ -1,7 +1,9 @@
-﻿using Application.Student.Dtos;
+﻿using Application.Common.Results;
+using Application.Student.Dtos;
 using Application.Student.Repository;
 using Domain.Abstractions.Enum;
 using Domain.Entities;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -16,7 +18,7 @@ namespace Infrastructure.Persistence.Repositories
         private readonly AppDbContext _db;
         public StudentRepository(AppDbContext db) => _db = db;
 
-        // ... dina GetAllAsync och GetByIdAsync metoder är korrekta och ska vara kvar ...
+        // === READ-METODER ===
 
         public async Task<IReadOnlyList<StudentDetailsDto>> GetAllAsync(CancellationToken ct)
         {
@@ -30,7 +32,6 @@ namespace Infrastructure.Persistence.Repositories
 
         public async Task<GetStudentByIdDto?> GetByIdAsync(Guid id, CancellationToken ct)
         {
-            // Din befintliga kod här...
             return await _db.Users
                 .AsNoTracking()
                 .Where(u => u.Id == id && u.Role == UserRole.Student)
@@ -43,23 +44,80 @@ namespace Infrastructure.Persistence.Repositories
             return await _db.Users.FirstOrDefaultAsync(u => u.Id == id && u.Role == UserRole.Student, ct);
         }
 
-        public void Add(UserEntity user, Guid classId)
+        public async Task<bool> EmailExistsAsync(string email, CancellationToken ct)
         {
-            // 1. Skapa den relaterade "enrollment"-entiteten
-            var enrollment = new EnrollmentEntity
-            {
-                Id = Guid.NewGuid(),
-                CreatedAtUtc = user.CreatedAtUtc,
-                UpdatedAtUtc = user.UpdatedAtUtc,
-                StudentId = user.Id, // <-- Här används user.Id (stort I)
-                ClassId = classId
-            };
-
-            // 2. Lägg till båda i DbContext. VI SPARAR INTE HÄR.
-            _db.Users.Add(user);
-            _db.Enrollments.Add(enrollment);
+            return await _db.Users.AnyAsync(u => u.Email == email, ct);
         }
-        
-        
+
+        public async Task<bool> ClassExistsAsync(Guid classId, CancellationToken ct)
+        {
+            return await _db.Classes.AnyAsync(c => c.Id == classId, ct);
+        }
+
+        // === WRITE-METODER ===
+
+        public async Task<OperationResult> AddAsync(UserEntity user, Guid classId, CancellationToken ct)
+        {
+            try
+            {
+                var enrollment = new EnrollmentEntity
+                {
+                    Id = Guid.NewGuid(),
+                    CreatedAtUtc = user.CreatedAtUtc,
+                    UpdatedAtUtc = user.UpdatedAtUtc,
+                    StudentId = user.Id,
+                    ClassId = classId
+                };
+
+                _db.Users.Add(user);
+                _db.Enrollments.Add(enrollment);
+                await _db.SaveChangesAsync(ct);
+                return OperationResult.Success();
+            }
+            catch (DbUpdateException)
+            {
+                return OperationResult.Failure(Error.InternalServiceError("Database.Error", "Ett databasfel inträffade vid skapande av student."));
+            }
+        }
+
+        public async Task<OperationResult> UpdateAsync(UserEntity user, CancellationToken ct)
+        {
+            try
+            {
+                _db.Users.Update(user);
+                await _db.SaveChangesAsync(ct);
+                return OperationResult.Success();
+            }
+            catch (DbUpdateException)
+            {
+                return OperationResult.Failure(Error.InternalServiceError("Database.Error", "Ett databasfel inträffade vid uppdatering av student."));
+            }
+        }
+
+        public async Task<OperationResult> DeleteAsync(Guid id, CancellationToken ct)
+        {
+            try
+            {
+                await _db.Enrollments
+                    .Where(e => e.StudentId == id)
+                    .ExecuteDeleteAsync(ct);
+
+                var rowsAffected = await _db.Users
+                    .Where(u => u.Id == id && u.Role == UserRole.Student)
+                    .ExecuteDeleteAsync(ct);
+
+                if (rowsAffected == 0)
+                {
+                    // Detta är inte ett "krasch"-fel, så vi kan returnera ett mer specifikt fel
+                    return OperationResult.Failure(Error.NotFound("Student.NotFound", $"Kunde inte hitta student med ID {id} att radera."));
+                }
+
+                return OperationResult.Success();
+            }
+            catch (DbUpdateException)
+            {
+                return OperationResult.Failure(Error.InternalServiceError("Database.Error", "Ett databasfel inträffade vid radering av student."));
+            }
+        }
     }
 }

@@ -6,7 +6,6 @@ namespace Application.Student.Dtos
         string FirstName,
         string LastName,
         string Email,
-        string Password,
         Guid ClassId
     );
 }
