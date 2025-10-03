@@ -1,6 +1,7 @@
 ﻿using Application.Abstractions.IPersistence.Repositories;
 using Application.Common.Results;
 using Application.Diary.Dtos;
+using Domain.Common;
 using Domain.Models.Diary;
 using FluentValidation;
 using MediatR;
@@ -31,7 +32,7 @@ namespace Application.Diary.Commands.CreateDiary
             var studentId = _currentUserService.UserId;
             if (studentId == null)
             {
-                return OperationResult<CreateDiaryEntryDto>.Failure(Error.Validation("User.NotAuthenticated",
+                return OperationResult<CreateDiaryEntryDto>.Failure(Error.Validation(ErrorCodes.General.Validation,
                     "Användaren är inte inloggad"));
                 
             }
@@ -41,13 +42,13 @@ namespace Application.Diary.Commands.CreateDiary
             {
                 var errorMessages = string.Join(",",  validationResult.Errors.Select(e => e.ErrorMessage));
                 return OperationResult<CreateDiaryEntryDto>.Failure(Error.Validation
-                    ("Validation.Error", errorMessages));
+                    (ErrorCodes.General.Validation, errorMessages));
             }
 
             if (await _diaryRepository.EntryExistsForDateAsync(studentId.Value, request.EntryDate, ct))
             {
                 return OperationResult<CreateDiaryEntryDto>.Failure(Error.Conflict
-                    ("Diary.DailyLimitedExceeded", "Endast en dagboginlägg per dag är tillåtet"));
+                    (ErrorCodes.DiaryError.DailyLimitExceeded, "Endast ett dagboksinlägg per dag är tillåtet"));
             }
 
             var diaryEntry = new DiaryEntry(

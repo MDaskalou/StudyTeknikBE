@@ -60,5 +60,25 @@ namespace Infrastructure.Persistence.Repositories
                 return OperationResult.Failure(Error.InternalServiceError("Database.Error", "Ett databasfel inträffade vid skapande av dagboksinlägg."));
             }
         }
+
+        public async Task<DiaryEntity> GetTrackedByIdAsync(Guid id, CancellationToken ct)
+        {
+            return await _db.Diaries.FirstOrDefaultAsync(d => d.Id == id, ct);
+        }
+
+        public async Task<OperationResult> UpdateAsync(DiaryEntity diaryEntity, CancellationToken ct)
+        {
+            try
+            {
+                _db.Diaries.Update(diaryEntity);
+                await _db.SaveChangesAsync(ct);
+                return OperationResult.Success();
+            }
+            catch (DbUpdateException ex)
+            {
+                return OperationResult.Failure(Error.InternalServiceError("Database.Error", "Ett databasfel inträffade."));
+            }
+        }
+        
         }
     }

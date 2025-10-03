@@ -2,6 +2,7 @@
 using Application.Student.Dtos;
 using Application.Teacher.Dtos;
 using Application.Teacher.Repository;
+using Domain.Common;
 using FluentValidation;
 using MediatR;
 
@@ -49,13 +50,13 @@ namespace Application.Teacher.Commands.UpdateTeacherDetails
             var validationResult = await _dtoValidator.ValidateAsync(updateTeacherResponse, ct);
             if (!validationResult.IsValid)
             {
-                return OperationResult.Failure(Error.Validation("Validation.Error", string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage))));
+                return OperationResult.Failure(Error.Validation(ErrorCodes.General.Validation, string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage))));
             }
 
             var newEmail = updateTeacherResponse.Email.Trim().ToLowerInvariant();
             if (userEntity.Email != newEmail && await _teacherRepository.EmailExistsAsync(newEmail, ct))
             {
-                return OperationResult.Failure(Error.Conflict("Teacher.EmailAlreadyExists", "Den nya e-postadressen används redan."));
+                return OperationResult.Failure(Error.Conflict(ErrorCodes.TeacherError.EmailAlreadyExists, "Den nya e-postadressen används redan."));
             }
 
             userEntity.FirstName = updateTeacherResponse.FirstName;

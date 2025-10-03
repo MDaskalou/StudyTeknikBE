@@ -2,6 +2,7 @@
 using Application.Common.Results;
 using Application.Teacher.Dtos;
 using Application.Teacher.Repository;
+using Domain.Common;
 using MediatR;
 
 namespace Application.Teacher.Queries.GetTeacherById
@@ -9,12 +10,10 @@ namespace Application.Teacher.Queries.GetTeacherById
     public sealed class GetTeacherByIdQueryHandler 
         : IRequestHandler<GetTeacherByIdQuery, OperationResult<GetTeacherByIdDto?>>
     {
-        private readonly IAppDbContext _db;
         private readonly ITeacherRepository _teacherRepository;
         
-        public GetTeacherByIdQueryHandler(IAppDbContext db, ITeacherRepository teacherRepository)
+        public GetTeacherByIdQueryHandler(ITeacherRepository teacherRepository)
         {
-            _db = db;
             _teacherRepository = teacherRepository;
         }
         
@@ -24,7 +23,7 @@ namespace Application.Teacher.Queries.GetTeacherById
             
             if (teacher is null)
             {
-                var error = Error.NotFound("Teacher.NotFound", $"Kunde inte hitta en lärare med ID: {request.Id}");
+                var error = Error.NotFound(ErrorCodes.TeacherError.NotFound, $"Kunde inte hitta en lärare med ID: {request.Id}");
                 return OperationResult<GetTeacherByIdDto?>.Failure(error);
             }
             
