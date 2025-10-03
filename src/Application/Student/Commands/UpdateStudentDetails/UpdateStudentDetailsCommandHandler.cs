@@ -1,7 +1,7 @@
 ﻿using Application.Common.Results;
-using Application.Student.Commands.UpdateStudentDetails;
 using Application.Student.Dtos;
 using Application.Student.Repository;
+using Domain.Common; // <-- Lägg till denna using
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.JsonPatch;
@@ -18,7 +18,7 @@ namespace Application.Student.Commands.UpdateStudentDetails
         private readonly IValidator<UpdateStudentDetailsDto> _dtoValidator;
 
         public UpdateStudentDetailsCommandHandler(
-            IStudentRepository studentRepository, 
+            IStudentRepository studentRepository,
             IValidator<UpdateStudentDetailsDto> dtoValidator)
         {
             _studentRepository = studentRepository;
@@ -30,7 +30,8 @@ namespace Application.Student.Commands.UpdateStudentDetails
             var userEntity = await _studentRepository.GetTrackedByIdAsync(request.Id, ct);
             if (userEntity is null)
             {
-                return OperationResult.Failure(Error.NotFound("Student.NotFound", $"Student med ID {request.Id} kunde inte hittas."));
+                // Använder ErrorCodes
+                return OperationResult.Failure(Error.NotFound(ErrorCodes.StudentError.NotFound, $"Student med ID {request.Id} kunde inte hittas."));
             }
 
             var detailsToPatch = new UpdateStudentDetailsDto
@@ -40,37 +41,39 @@ namespace Application.Student.Commands.UpdateStudentDetails
                 Email = userEntity.Email,
                 SecurityNumber = userEntity.SecurityNumber
             };
-            
+
             try
             {
                 request.PatchDoc.ApplyTo(detailsToPatch);
             }
             catch (Exception ex)
             {
-                return OperationResult.Failure(Error.Validation("Patch.InvalidOperation", ex.Message));
+                // Använder ErrorCodes
+                return OperationResult.Failure(Error.Validation(ErrorCodes.General.Validation, ex.Message));
             }
 
             var validationResult = await _dtoValidator.ValidateAsync(detailsToPatch, ct);
             if (!validationResult.IsValid)
             {
                 var errorMessages = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage).ToArray());
-                var error = Error.Validation("Validation.Error", errorMessages);
+                // Använder ErrorCodes
+                var error = Error.Validation(ErrorCodes.General.Validation, errorMessages);
                 return OperationResult.Failure(error);
             }
 
             var newEmail = detailsToPatch.Email.Trim().ToLowerInvariant();
             if (userEntity.Email != newEmail && await _studentRepository.EmailExistsAsync(newEmail, ct))
             {
-                return OperationResult.Failure(Error.Conflict("Student.EmailAlreadyExists", "Den nya e-postadressen används redan."));
+                // Använder ErrorCodes
+                return OperationResult.Failure(Error.Conflict(ErrorCodes.StudentError.EmailAlreadyExists, "Den nya e-postadressen används redan."));
             }
-            
+
             userEntity.FirstName = detailsToPatch.FirstName;
             userEntity.LastName = detailsToPatch.LastName;
             userEntity.Email = newEmail;
             userEntity.SecurityNumber = detailsToPatch.SecurityNumber;
             userEntity.UpdatedAtUtc = DateTime.UtcNow;
 
-            // FIX 3: Anropa repositoryts UpdateAsync-metod som hanterar SaveChanges
             return await _studentRepository.UpdateAsync(userEntity, ct);
         }
     }

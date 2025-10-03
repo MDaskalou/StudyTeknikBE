@@ -21,7 +21,7 @@ namespace Application.Abstractions.IPersistence
         //DbSet
         
         DbSet<UserEntity> Users { get; }
-        DbSet<DiaryEntryEntity> DiaryEntries { get; }
+        DbSet<DiaryEntity> Diaries { get; }
         DbSet<WeeklySummaryEntity> WeeklySummaries { get; }
         DbSet<ClassEntity> Classes { get; }
         DbSet<EnrollmentEntity> Enrollments { get; }

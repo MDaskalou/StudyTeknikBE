@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 
-namespace Domain.Models.Common;
+namespace Domain.Common;
 
 public abstract class ValueObject : IEquatable<ValueObject>
 {

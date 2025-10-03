@@ -1,6 +1,7 @@
 ﻿using Application.Common.Results;
 using Application.Student.Commands.UpdateStudent;
 using Application.Student.Repository;
+using Domain.Common;
 using FluentValidation;
 using MediatR;
 using System;
@@ -12,7 +13,6 @@ namespace Application.Student.Commands.UpdateStudent
 {
     public sealed class UpdateStudentCommandHandler : IRequestHandler<UpdateStudentCommand, OperationResult>
     {
-        // FIX 1: Beroendet till IAppDbContext är nu borta
         private readonly IStudentRepository _studentRepository;
         private readonly IValidator<UpdateStudentCommand> _validator;
 
@@ -27,31 +27,28 @@ namespace Application.Student.Commands.UpdateStudent
             var validationResult = await _validator.ValidateAsync(command, ct);
             if (!validationResult.IsValid)
             {
-                var error = Error.Validation("Validation.Error", string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage).ToArray()));
-                return OperationResult.Failure(error);
+                return OperationResult.Failure(Error.Validation(ErrorCodes.General.Validation, string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage).ToArray())));
             }
 
             var userEntity = await _studentRepository.GetTrackedByIdAsync(command.Id, ct);
             if (userEntity is null)
             {
-                return OperationResult.Failure(Error.NotFound("Student.NotFound", $"Student med ID {command.Id} kunde inte hittas."));
+                return OperationResult.Failure(Error.NotFound(ErrorCodes.StudentError.NotFound, $"Student med ID {command.Id} kunde inte hittas."));
             }
 
             var newEmail = command.Email.Trim().ToLowerInvariant();
-            // FIX 2: Använder repositoryt för att kolla om e-post finns
             if (userEntity.Email != newEmail && await _studentRepository.EmailExistsAsync(newEmail, ct))
             {
-                return OperationResult.Failure(Error.Conflict("Student.EmailAlreadyExists", "Den nya e-postadressen används redan."));
+                return OperationResult.Failure(Error.Conflict(ErrorCodes.StudentError.EmailAlreadyExists, "Den nya e-postadressen används redan."));
             }
-
-            // Uppdatera entiteten i minnet
+            
+            // Uppdatera entiteten direkt från kommandot
             userEntity.FirstName = command.FirstName.Trim();
             userEntity.LastName = command.LastName.Trim();
             userEntity.Email = newEmail;
             userEntity.SecurityNumber = command.SecurityNumber.Trim();
             userEntity.UpdatedAtUtc = DateTime.UtcNow;
 
-            // FIX 3: Anropa repositoryts UpdateAsync-metod som hanterar SaveChanges
             return await _studentRepository.UpdateAsync(userEntity, ct);
         }
     }

@@ -9,6 +9,8 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Domain.Common;
+using Domain.Models.Classes;
 
 public sealed class CreateStudentHandler
     : IRequestHandler<CreateStudentCommand, OperationResult<StudentCreatedDto>>
@@ -28,7 +30,7 @@ public sealed class CreateStudentHandler
         if (!validationResult.IsValid)
         {
             var errorMessages = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage).ToArray());
-            var validationError = Error.Validation("Validation.Error", errorMessages);
+            var validationError = Error.Validation(ErrorCodes.General.Validation, errorMessages);
             return OperationResult<StudentCreatedDto>.Failure(validationError);
         }
 
@@ -36,13 +38,14 @@ public sealed class CreateStudentHandler
 
         if (await _studentRepository.EmailExistsAsync(email, ct))
         {
-            var error = Error.Conflict("Student.EmailAlreadyExists", "En student med denna e-postadress finns redan.");
+            var error = Error.Conflict(ErrorCodes.StudentError.EmailAlreadyExists,
+                "En student med den här eposten finns redan.");
             return OperationResult<StudentCreatedDto>.Failure(error);
         }
 
         if (!await _studentRepository.ClassExistsAsync(command.ClassId, ct))
         {
-            var error = Error.NotFound("Class.NotFound", $"Klassen med ID {command.ClassId} kunde inte hittas.");
+            var error = Error.NotFound("Class.Notfound", $"Klassen med id {command.ClassId} kunde inte hittas.");
             return OperationResult<StudentCreatedDto>.Failure(error);
         }
 
