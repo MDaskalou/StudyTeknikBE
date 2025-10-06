@@ -15,6 +15,8 @@ namespace Application.Abstractions.IPersistence.Repositories
         Task<OperationResult> UpdateAsync(DiaryEntity diaryEntity, CancellationToken ct);
         
         Task<DiaryEntity?> GetTrackedByIdAsync(Guid id, CancellationToken ct);
+        
+        Task<OperationResult> DeleteAsync(DiaryEntity diaryEntity, CancellationToken ct);
 
         
     }

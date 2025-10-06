@@ -79,6 +79,21 @@ namespace Infrastructure.Persistence.Repositories
                 return OperationResult.Failure(Error.InternalServiceError("Database.Error", "Ett databasfel inträffade."));
             }
         }
+
+        public async Task<OperationResult> DeleteAsync(DiaryEntity diaryEntity, CancellationToken ct)
+        {
+            try
+            {
+                _db.Diaries.Remove(diaryEntity);
+                await _db.SaveChangesAsync(ct);
+                return OperationResult.Success();
+
+            }
+            catch (DbUpdateException ex)
+            {
+                return OperationResult.Failure(Error.InternalServiceError("Database.Error", "Ett databasfel inträffade vid radering av dagboksinlägg."));
+            }
+        }
     }
         
     

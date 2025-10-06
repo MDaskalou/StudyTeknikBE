@@ -2,6 +2,7 @@
 using Application.Abstractions.IPersistence.Repositories;
 using Application.Common.Results;
 using Application.Diary.Commands.CreateDiary;
+using Application.Diary.Commands.DeleteDiary;
 using Application.Diary.Commands.UpdateDiary;
 using Application.Diary.Commands.UpdateDiaryDetails;
 using Application.Diary.Dtos;
@@ -78,6 +79,25 @@ namespace StudyTeknik.Controllers
                 };
             }
 
+            return NoContent();
+        }
+
+        [HttpDelete("DeleteDiary/{id:guid}")]
+
+        public async Task<IActionResult> DeleteDiary(Guid id, CancellationToken ct)
+        {
+            var command = new DeleteDiaryCommand(id);
+            var result = await _mediator.Send(command, ct);
+            
+            if (result.IsFailure)
+            {
+                return result.Error.Type switch
+                {
+                    ErrorType.NotFound => NotFound(result.Error),
+                    _ => BadRequest(result.Error)
+                };
+            }
+            
             return NoContent();
         }
             
