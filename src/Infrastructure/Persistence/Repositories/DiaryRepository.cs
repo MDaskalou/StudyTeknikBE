@@ -79,6 +79,8 @@ namespace Infrastructure.Persistence.Repositories
                 return OperationResult.Failure(Error.InternalServiceError("Database.Error", "Ett databasfel inträffade."));
             }
         }
+    }
         
-        }
+    
+    
     }
