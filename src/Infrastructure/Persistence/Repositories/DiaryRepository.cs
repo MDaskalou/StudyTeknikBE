@@ -1,5 +1,6 @@
 ﻿using Application.Abstractions.IPersistence.Repositories;
 using Application.Common.Results;
+using Application.Diary.Dtos;
 using Domain.Entities;
 using Domain.Models.Diary;
 using Infrastructure.Persistence.Mapper;
@@ -93,6 +94,21 @@ namespace Infrastructure.Persistence.Repositories
             {
                 return OperationResult.Failure(Error.InternalServiceError("Database.Error", "Ett databasfel inträffade vid radering av dagboksinlägg."));
             }
+        }
+
+        public async Task<IReadOnlyList<GetAllDiaryDto>> GetAllDiariesForStudentAsync(Guid studentId, CancellationToken ct)
+        {
+            return await _db.Diaries // Bytte namn till DiaryEntries för att matcha din DbContext
+                .AsNoTracking()
+                .Where(d => d.StudentId == studentId)
+                .OrderByDescending(d => d.EntryDate)
+                .Select(d => new GetAllDiaryDto(
+                    // Korrekt ordning: Id, TextSnippet, EntryDate
+                    d.Id,
+                    d.Text.Length > 100 ? d.Text.Substring(0, 100) + "..." : d.Text,
+                    d.EntryDate
+                ))
+                .ToListAsync(ct);
         }
     }
         
