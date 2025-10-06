@@ -8,10 +8,8 @@ namespace Domain.Models.Diary
     // TODO: validera längd (t.ex. 5000) i Application-validator.
 
     
-    //En dagbokspost (text, datum, elev).
     public sealed class DiaryEntry : IAggregateRoot
     {
-        //Identitet och metadata 
         
         public Guid Id { get; set; }
         public DateTime CreatedAtUtc { get; set; }

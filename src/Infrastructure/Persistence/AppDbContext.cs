@@ -16,7 +16,7 @@ namespace Infrastructure.Persistence
     public class AppDbContext :DbContext, IAppDbContext
     {
         public DbSet<UserEntity> Users => Set<UserEntity>();
-        public DbSet<DiaryEntryEntity> DiaryEntries => Set<DiaryEntryEntity>();
+        public DbSet<DiaryEntity> Diaries => Set<DiaryEntity>();
         public DbSet<WeeklySummaryEntity> WeeklySummaries => Set<WeeklySummaryEntity>();
         public DbSet<ClassEntity> Classes => Set<ClassEntity>();
         public DbSet<EnrollmentEntity> Enrollments => Set<EnrollmentEntity>();

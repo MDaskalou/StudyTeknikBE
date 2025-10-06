@@ -11,17 +11,16 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Domain.Common;
 
 namespace Application.Teacher.Commands.CreateTeacher
 {
-    // Din klassdeklaration var nästan rätt, vi behöver bara korrigera retur-DTO:n
     public sealed class CreateTeacherCommandHandler 
         : IRequestHandler<CreateTeacherCommand, OperationResult<CreateTeacherDto>>
     {
         private readonly ITeacherRepository _teacherRepository;
         private readonly IValidator<CreateTeacherCommand> _validator;
         
-        // Notera: IAppDbContext behövs inte här i det nya mönstret
         public CreateTeacherCommandHandler(
             ITeacherRepository teacherRepository,
             IValidator<CreateTeacherCommand> validator)
@@ -30,22 +29,19 @@ namespace Application.Teacher.Commands.CreateTeacher
             _validator = validator;
         }
 
-        // Här är den enda, kompletta Handle-metoden
         public async Task<OperationResult<CreateTeacherDto>> Handle(CreateTeacherCommand command, CancellationToken ct)
         {
-            // Validera inkommande kommando
             var validationResult = await _validator.ValidateAsync(command, ct);
             if (!validationResult.IsValid)
             {
-                var error = Error.Validation("Validation.Error", string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)));
+                var error = Error.Validation(ErrorCodes.General.Validation, string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage)));
                 return OperationResult<CreateTeacherDto>.Failure(error);
             }
 
-            // Kontrollera om e-post existerar via repositoryt
             var email = command.Email.Trim().ToLowerInvariant();
             if (await _teacherRepository.EmailExistsAsync(email, ct)) // Korrekt metodnamn
             {
-                var error = Error.Conflict("Teacher.EmailAlreadyExists", $"En användare med e-postadressen '{email}' finns redan.");
+                var error = Error.Conflict(ErrorCodes.TeacherError.EmailAlreadyExists, $"En användare med e-postadressen '{email}' finns redan.");
                 return OperationResult<CreateTeacherDto>.Failure(error);
             }
 
@@ -67,15 +63,12 @@ namespace Application.Teacher.Commands.CreateTeacher
                 ExternalSubject = ""
             };
 
-            // Anropa repositoryts AddAsync-metod för att spara till databasen
             var addResult = await _teacherRepository.AddAsync(user, ct);
             if (addResult.IsFailure)
             {
-                // Om något gick fel i databasen, returnera felet
                 return OperationResult<CreateTeacherDto>.Failure(addResult.Error);
             }
 
-            // Skapa det korrekta svars-DTO:t (TeacherCreatedDto)
             var responseDto = new CreateTeacherDto(
                 user.Id,
                 $"{user.FirstName} {user.LastName}", 

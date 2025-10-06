@@ -5,7 +5,7 @@ namespace Infrastructure.Persistence.Mapper
 {
     public static class DiaryMapper
     {
-        public static DiaryEntry ToModel(this DiaryEntryEntity e)
+        public static DiaryEntry ToModel(this DiaryEntity e)
             => DiaryEntry.Rehydrate(
                 e.Id, e.CreatedAtUtc, e.UpdatedAtUtc, e.StudentId, e.EntryDate, e.Text);
     }
