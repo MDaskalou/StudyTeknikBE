@@ -48,7 +48,6 @@ namespace Infrastructure.DependencyInjection
             
             
 
-            // 5) PasswordHasher
 
             return services;
         }
