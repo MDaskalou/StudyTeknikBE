@@ -3,9 +3,11 @@ using Application.Abstractions.IPersistence.Repositories;
 using Application.Common.Results;
 using Application.Diary.Commands.CreateDiary;
 using Application.Diary.Commands.UpdateDiary;
+using Application.Diary.Commands.UpdateDiaryDetails;
 using Application.Diary.Dtos;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -58,6 +60,25 @@ namespace StudyTeknik.Controllers
             }
             return NoContent();
 
+        }
+        
+        [HttpPatch("UpdateDiaryDetails/{id:guid}")]
+        
+        public async Task<IActionResult> UpdateDiaryDetails(Guid id, [FromBody] JsonPatchDocument<UpdateDiaryDetailsDto> patchDoc, CancellationToken ct)
+        {
+            var command = new UpdateDiaryDetailsCommand(id, patchDoc);
+            var result = await _mediator.Send(command, ct);
+
+            if (result.IsFailure)
+            {
+                return result.Error.Type switch
+                {
+                    ErrorType.NotFound => NotFound(result.Error),
+                    _ => BadRequest(result.Error)
+                };
+            }
+
+            return NoContent();
         }
             
     }
