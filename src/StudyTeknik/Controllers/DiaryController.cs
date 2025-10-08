@@ -6,6 +6,8 @@ using Application.Diary.Commands.DeleteDiary;
 using Application.Diary.Commands.UpdateDiary;
 using Application.Diary.Commands.UpdateDiaryDetails;
 using Application.Diary.Dtos;
+using Application.Diary.Queries.GetAllDiary;
+using Application.Diary.Queries.GetDiaryById;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
@@ -100,6 +102,39 @@ namespace StudyTeknik.Controllers
             
             return NoContent();
         }
+
+        [HttpGet("GetAllDiariesForStudent")]
+
+        public async Task<IActionResult> GetAllDiariesForStudent(CancellationToken ct)
+        {
+            var query = new GetAllDiaryQuery();
+            var result = await _mediator.Send(query, ct);
+
+            if (result.IsFailure)
+            {
+                return BadRequest(result.Error);
+            }
             
+            return Ok(result.Value);
+        }
+
+        [HttpGet("GetGiaryById/{id:guid}")]
+
+        public async Task<IActionResult> GetGiaryById(Guid id, CancellationToken ct)
+        {
+            var query = new GetDiaryByIdQuery(id);
+            var result = await _mediator.Send(query, ct);
+            
+            if (result.IsFailure)
+            {
+                return result.Error.Type switch
+                {
+                    ErrorType.NotFound => NotFound(result.Error),
+                    _ => BadRequest(result.Error)
+                };
+            }
+            
+            return Ok(result.Value);
+        }
     }
 }

@@ -2,6 +2,6 @@
 {
     public class UpdateDiaryDetailsRequestDto
     {
-        public string Text { get; set; }= string.Empty;
+        public required string Text { get; set; }
     }
 }
