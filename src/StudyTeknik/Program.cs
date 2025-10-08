@@ -32,38 +32,26 @@ public class Program
 
         builder.Services.AddInfrastructure(builder.Configuration);
         
-        if (builder.Environment.IsDevelopment())
-        {
-            builder.Services.AddAuthentication(options =>
-                {
-                    options.DefaultAuthenticateScheme = StudyTeknik.Auth.DevAuthHandler.Scheme;
-                    options.DefaultChallengeScheme    = StudyTeknik.Auth.DevAuthHandler.Scheme;
-                })
-                .AddScheme<AuthenticationSchemeOptions, StudyTeknik.Auth.DevAuthHandler>(
-                    StudyTeknik.Auth.DevAuthHandler.Scheme, _ => { });
-        }
-        else
-        {
-            builder.Services
-                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(options =>
-                {
-                    options.Authority = builder.Configuration["Jwt:Authority"];
-                    options.Audience  = builder.Configuration["Jwt:Audience"];
-                    options.RequireHttpsMetadata = true;
-                });
-        }
+        var authority = builder.Configuration["Jwt:Authority"];
+        var audience = builder.Configuration["Jwt:Audience"];
 
+        Console.WriteLine("--- DEBUG INFO ---");
+        Console.WriteLine($"Authority from config: {authority}");
+        Console.WriteLine($"Audience from config: {audience}");
+        Console.WriteLine("--------------------");
         
-        // AuthN (extern IdP – byt Authority/Audience i appsettings)
-        //builder.Services
-        //    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-        //    .AddJwtBearer(options =>
-        //    {
-       //         options.Authority = builder.Configuration["Jwt:Authority"];
-        //        options.Audience = builder.Configuration["Jwt:Audience"];
-        //        options.RequireHttpsMetadata = true;
-        //    });
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                // Hämta värden från appsettings.json
+                options.Authority = builder.Configuration["Jwt:Authority"];
+                options.Audience  = builder.Configuration["Jwt:Audience"];
+        
+                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                {
+                    RoleClaimType = "roles"
+                };
+            });
         
         // CurrentUserService
         builder.Services.AddHttpContextAccessor();
