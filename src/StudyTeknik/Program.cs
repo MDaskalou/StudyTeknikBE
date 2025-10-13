@@ -7,10 +7,19 @@ using Infrastructure.DependencyInjection;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Seed;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.IdentityModel.Tokens;
 using StudyTeknik.Middleware;
 using StudyTeknik.Service;
 using MediatR;
 using FluentValidation;
+using Microsoft.OpenApi.Models;
+using System.Net.Http;
+using System.Linq;
+using Application.Student.Repository;
+using Infrastructure.Persistence.Repositories;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace StudyTeknik;
 
@@ -20,285 +29,228 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Add services to the container
-        builder.Services.AddControllers()
-            .AddNewtonsoftJson();
+        // JWT-konfiguration
+        var authority = builder.Configuration["Jwt:Authority"];
+        var audience  = builder.Configuration["Jwt:Audience"];
 
-        builder.Services.AddApplicationServices();
-        builder.Services.AddInfrastructure(builder.Configuration);
+        Console.WriteLine("--- JWT CONFIGURATION ---");
+        Console.WriteLine($"Authority: {authority}");
+        Console.WriteLine($"Audience:  {audience}");
+        Console.WriteLine("-------------------------");
 
-        // HttpClient för metadata-hämtning
-        builder.Services.AddHttpClient();
-
-        // HttpClientHandler som accepterar SSL-certifikat i development
+        // Custom HttpClientHandler (SSL i dev)
         var httpClientHandler = new HttpClientHandler
         {
             ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
             {
                 if (builder.Environment.IsDevelopment())
                 {
-                    return true; // Acceptera alla certifikat i development
+                    Console.WriteLine($"🔍 SSL Validering för {message.RequestUri} ignoreras i Development-läge.");
+                    return true;
                 }
                 return errors == System.Net.Security.SslPolicyErrors.None;
             }
         };
 
-        // Hämta JWT-konfiguration
-        var authority = builder.Configuration["Jwt:Authority"];
-        var audience = builder.Configuration["Jwt:Audience"];
+        // --- MANUELL NYCKELHÄMTNING ---
+        ICollection<SecurityKey>? signingKeys = null;
+        if (!string.IsNullOrEmpty(authority))
+        {
+            try
+            {
+                Console.WriteLine("Development mode: Manuellt hämtar signeringsnycklar...");
 
-        Console.WriteLine("--- JWT CONFIGURATION ---");
-        Console.WriteLine($"Authority: {authority}");
-        Console.WriteLine($"Audience: {audience}");
-        Console.WriteLine($"Metadata: {authority}/.well-known/openid-configuration");
-        Console.WriteLine("-------------------------");
+                // Skapa HttpClient ovanpå din handler
+                var httpClient = new HttpClient(httpClientHandler);
 
-        // Konfigurera JWT Authentication
+                // HttpDocumentRetriever med HttpClient
+                var httpDocumentRetriever = new HttpDocumentRetriever(httpClient)
+                {
+                    RequireHttps = !builder.Environment.IsDevelopment()
+                };
+
+                // Hämta discovery document
+                var configurationManager = new ConfigurationManager<OpenIdConnectConfiguration>(
+                    $"{authority}/.well-known/openid-configuration",
+                    new OpenIdConnectConfigurationRetriever(),
+                    httpDocumentRetriever
+                );
+
+                Console.WriteLine($"Steg 1: Hämtar discovery document från {configurationManager.MetadataAddress}");
+                var discoveryDocument = await configurationManager.GetConfigurationAsync(CancellationToken.None);
+                Console.WriteLine("✅ Discovery document hämtat.");
+
+                // Hämta nycklar
+                Console.WriteLine($"Steg 2: Hämtar JWKS från {discoveryDocument.JwksUri}");
+                signingKeys = discoveryDocument.SigningKeys;
+                Console.WriteLine($"✅ {signingKeys.Count} signeringsnycklar hämtade från IdP.");
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("❌ Kritiskt fel: Kunde inte hämta signeringsnycklar från IdP. Applikationen kan inte starta säkert.");
+                Console.WriteLine($"   Felmeddelande: {ex.Message}");
+                Console.ResetColor();
+                return;
+            }
+        }
+        // --- SLUT MANUELL NYCKELHÄMTNING ---
+        JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+        // AuthN
         builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
                 options.Authority = authority;
-                options.Audience = audience;
-                options.MetadataAddress = $"{authority}/.well-known/openid-configuration";
-                options.BackchannelHttpHandler = httpClientHandler;
+                options.Audience  = audience;
                 options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
 
-                options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
                     ValidIssuer = authority,
                     ValidateAudience = true,
-                    ValidAudience = audience, 
+                    ValidAudience = audience,
                     ValidateLifetime = true,
                     ValidateIssuerSigningKey = true,
                     RoleClaimType = "roles",
-                    NameClaimType = "sub", 
-                    ClockSkew = TimeSpan.FromMinutes(5)
+                    NameClaimType = "sub"
+                    // IssuerSigningKeys sätts nedan om vi har nycklar
                 };
 
-                // Development logging
+                // Sätt endast om nycklar fanns
+                if (signingKeys?.Count > 0)
+                {
+                    options.TokenValidationParameters.IssuerSigningKeys = signingKeys;
+                }
+
                 if (builder.Environment.IsDevelopment())
                 {
                     options.Events = new JwtBearerEvents
                     {
                         OnAuthenticationFailed = context =>
                         {
+                            Console.ForegroundColor = ConsoleColor.Red;
                             Console.WriteLine($"❌ Auth failed: {context.Exception.GetType().Name}");
                             Console.WriteLine($"   Message: {context.Exception.Message}");
-                            if (context.Exception.InnerException != null)
-                            {
-                                Console.WriteLine($"   Inner: {context.Exception.InnerException.Message}");
-                            }
+                            Console.ResetColor();
                             return Task.CompletedTask;
                         },
                         OnTokenValidated = context =>
                         {
+                            Console.ForegroundColor = ConsoleColor.Green;
                             Console.WriteLine("✅ Token validated successfully");
                             var userId = context.Principal?.FindFirst("sub")?.Value;
-                            var roles = context.Principal?.FindAll("roles").Select(c => c.Value);
-                            Console.WriteLine($"   User: {userId}");
-                            Console.WriteLine($"   Roles: {string.Join(", ", roles ?? Array.Empty<string>())}");
-                            return Task.CompletedTask;
-                        },
-                        OnChallenge = context =>
-                        {
-                            Console.WriteLine($"⚠️ Auth challenge: {context.Error}");
-                            Console.WriteLine($"   Description: {context.ErrorDescription}");
-                            return Task.CompletedTask;
-                        },
-                        OnMessageReceived = context =>
-                        {
-                            Console.WriteLine("📨 Token received from request");
+                            var roles = context.Principal?.FindAll("roles").Select(c => c.Value) ?? Enumerable.Empty<string>();
+                            Console.WriteLine($"   User:  {userId}");
+                            Console.WriteLine($"   Roles: {string.Join(", ", roles)}");
+                            Console.ResetColor();
                             return Task.CompletedTask;
                         }
                     };
                 }
             });
 
-        // CurrentUserService
+        // Services
+        builder.Services.AddControllers().AddNewtonsoftJson();
+        builder.Services.AddApplicationServices();
+        builder.Services.AddInfrastructure(builder.Configuration);
+
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+        
+        //Repositoy
+        // I din Program.cs
 
-        // Authorization policies
-        builder.Services.AddAuthorization(opts =>
-        {
-            opts.AddPolicy("Users.Manage", policy =>
-            {
-                policy.RequireAuthenticatedUser();
-                policy.RequireAssertion(ctx =>
-                    ctx.User.IsInRole("Admin")
-                    || ctx.User.HasClaim(c =>
-                        c.Type == "scope" &&
-                        c.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                            .Contains("users:manage"))
-                );
-            });
 
-            opts.AddPolicy("Users.Read", policy =>
-            {
-                policy.RequireAuthenticatedUser();
-                policy.RequireAssertion(ctx =>
-                    ctx.User.IsInRole("Admin") ||
-                    ctx.User.IsInRole("Teacher") ||
-                    ctx.User.IsInRole("Mentor") ||
-                    ctx.User.IsInRole("Student")
-                    || ctx.User.HasClaim(c =>
-                        c.Type == "scope" &&
-                        c.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                            .Contains("users:read"))
-                );
-            });
+        builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+        builder.Services.AddScoped<IDiaryRepository, DiaryRepository>(); 
 
-            opts.AddPolicy("Classes.Read", policy =>
-            {
-                policy.RequireAuthenticatedUser();
-                policy.RequireAssertion(ctx =>
-                    ctx.User.HasClaim(c => c.Type == "scope" &&
-                                           c.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                                               .Contains("classes:read")));
-            });
 
-            opts.AddPolicy("Classes.Manage", policy =>
-            {
-                policy.RequireAuthenticatedUser();
-                policy.RequireAssertion(ctx =>
-                    ctx.User.HasClaim(c => c.Type == "scope" &&
-                                           c.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries)
-                                               .Contains("classes:manage")));
-            });
+        // AuthZ
+       builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("HasWriteScope", policy =>
+        policy.RequireAuthenticatedUser()
+              .RequireAssertion(context => 
+              {
+                  Console.WriteLine("--- Utvärderar 'HasWriteScope' Policy ---");
+                  // Leta efter ett claim som heter antingen "scope" eller det långa standardnamnet.
+                  var scopeClaim = context.User.Claims.FirstOrDefault(c => c.Type == "scope" || c.Type == "http://schemas.microsoft.com/identity/claims/scope");
 
-            opts.AddPolicy("StudentOnly", policy => policy.RequireRole("Student"));
-            opts.AddPolicy("TeacherOnly", policy => policy.RequireRole("Teacher"));
-            opts.AddPolicy("MentorOnly", policy => policy.RequireRole("Mentor"));
-            opts.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
-        });
+                  if (scopeClaim == null)
+                  {
+                      Console.ForegroundColor = ConsoleColor.Red;
+                      Console.WriteLine("--> FEL: 'scope'-claim hittades INTE!");
+                      Console.ResetColor();
+                      // Skriv ut alla claims vi faktiskt hittade, för att se vad som är fel.
+                      Console.WriteLine("    Tillgängliga claims i token:");
+                      foreach(var claim in context.User.Claims)
+                      {
+                          Console.WriteLine($"      - Typ: '{claim.Type}', Värde: '{claim.Value}'");
+                      }
+                      return false; // Misslyckas authoriseringen
+                  }
 
-        // MediatR
-        builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Program).Assembly));
+                  Console.ForegroundColor = ConsoleColor.Green;
+                  Console.WriteLine($"--> SUCCÉ: Hittade 'scope'-claim! Typ='{scopeClaim.Type}', Värde='{scopeClaim.Value}'");
+                  var scopes = scopeClaim.Value.Split(' ');
+                  var hasScope = scopes.Contains("diary:write");
+                  Console.WriteLine($"--> Innehåller den 'diary:write'? {hasScope}");
+                  Console.ResetColor();
+
+                  return hasScope; // Returnera true om scopet finns, annars false.
+              }));
+
+    // Gör samma sak för läs-behörighet
+    options.AddPolicy("HasReadScope", policy =>
+        policy.RequireAuthenticatedUser()
+              .RequireAssertion(context => 
+                  context.User.HasClaim(c => 
+                      (c.Type == "scope" || c.Type == "http://schemas.microsoft.com/identity/claims/scope") && 
+                      c.Value.Split(' ').Contains("diary:read")
+                  )
+              ));
+});
+        
+        // MediatR & FluentValidation
         builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetAllStudentsHandler).Assembly));
-        builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateStudentHandler).Assembly));
+        builder.Services.AddValidatorsFromAssembly(typeof(GetAllStudentsHandler).Assembly);
 
-        // FluentValidation
-        builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly);
-        builder.Services.AddValidatorsFromAssembly(typeof(CreateStudentHandler).Assembly);
-
-        // Swagger/OpenAPI
+        // Swagger
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen(c =>
         {
-            if (builder.Environment.IsDevelopment())
+            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
-                c.AddSecurityDefinition("X-UserId", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-                {
-                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-                    Name = "X-UserId",
-                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
-                    Description = "Dev auth: seed GUID för användare"
-                });
-
-                c.AddSecurityDefinition("X-Role", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-                {
-                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-                    Name = "X-Role",
-                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey,
-                    Description = "Dev auth: Student | Teacher | Mentor | Admin"
-                });
-
-                c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
-                {
-                    {
-                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-                        {
-                            Reference = new Microsoft.OpenApi.Models.OpenApiReference
-                            {
-                                Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                                Id = "X-UserId"
-                            }
-                        },
-                        new string[] { }
-                    },
-                    {
-                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-                        {
-                            Reference = new Microsoft.OpenApi.Models.OpenApiReference
-                            {
-                                Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                                Id = "X-Role"
-                            }
-                        },
-                        new string[] { }
-                    }
-                });
-            }
-            else
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description = "Skriv: Bearer {token}"
+            });
+            c.AddSecurityRequirement(new OpenApiSecurityRequirement
             {
-                c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-                {
-                    Name = "Authorization",
-                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
-                    Scheme = "bearer",
-                    BearerFormat = "JWT",
-                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
-                    Description = "Skriv: Bearer {token}"
-                });
-
-                c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
-                {
-                    {
-                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-                        {
-                            Reference = new Microsoft.OpenApi.Models.OpenApiReference
-                            {
-                                Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                        },
-                        new string[] { }
-                    }
-                });
-            }
+                { new OpenApiSecurityScheme { Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" } }, new string[] {} }
+            });
         });
 
         var app = builder.Build();
 
-        // Configure the HTTP request pipeline
+        // Pipeline
         if (app.Environment.IsDevelopment())
         {
             app.UseSwagger();
             app.UseSwaggerUI();
 
-            // Seed testdata
             using var scope = app.Services.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var db     = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
             await DatabaseSeeder.SeedAsync(db, logger);
-
-            // Testa metadata endpoint
-            try
-            {
-                using var testClient = new HttpClient(httpClientHandler);
-                var metadataUrl = $"{authority}/.well-known/openid-configuration";
-                Console.WriteLine($"\n🔍 Testing metadata endpoint: {metadataUrl}");
-
-                var response = await testClient.GetAsync(metadataUrl);
-                if (response.IsSuccessStatusCode)
-                {
-                    var content = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine("✅ Metadata endpoint is reachable");
-                    Console.WriteLine($"   Response length: {content.Length} characters\n");
-                }
-                else
-                {
-                    Console.WriteLine($"❌ Metadata endpoint failed: {response.StatusCode}\n");
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"❌ Cannot reach metadata endpoint: {ex.Message}\n");
-            }
         }
 
         app.UseHttpsRedirection();
+        app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
         app.UseAuthentication();
         app.UseAuthorization();
         app.UseMiddleware<ForbiddenLoggingMiddleware>();
