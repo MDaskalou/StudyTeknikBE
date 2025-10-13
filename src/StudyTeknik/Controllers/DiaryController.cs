@@ -53,12 +53,18 @@ namespace StudyTeknik.Controllers
 
             return Created($"/api/diaries/{result.Value!.Id}", result.Value);}
 
-        [HttpPut("UpdateDiary")]
+        [HttpPut("UpdateDiary/{Id:guid}")]
         [Authorize(Policy = "HasWriteScope")]
 
-        public async Task<IActionResult> UpdateDiary(Guid Id, [FromBody] UpdateDiaryDto dto, CancellationToken ct)
+        public async Task<IActionResult> UpdateDiary(Guid id, [FromBody] UpdateDiaryDto dto, CancellationToken ct)
         {
-            var command = new UpdateDiaryCommand(Id, dto.Text);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new { error = "Kunde inte identifiera användaren" });
+            }
+            
+            var command = new UpdateDiaryCommand(id,userId, dto.Text);
             var result = await _mediator.Send(command, ct);
 
             if (result.IsFailure)
