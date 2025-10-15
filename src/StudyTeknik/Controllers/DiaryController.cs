@@ -13,12 +13,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace StudyTeknik.Controllers
 {
     [ApiController]
     [Route("api/diary")]
-    [Authorize(Roles = "Student")]
 
     public sealed class DiaryController : ControllerBase
     {
@@ -26,14 +26,22 @@ namespace StudyTeknik.Controllers
         public DiaryController(IMediator mediator) => _mediator = mediator;
 
         [HttpPost("CreateDiary")]
-        public async Task<IActionResult> CreateDiaryEntry([FromBody]  CreateDiaryRequestDto requestDto, CancellationToken ct)
+        [Authorize(Policy = "HasWriteScope")]
+
+        public async Task<IActionResult> CreateDiaryEntry([FromBody] CreateDiaryRequestDto requestDto, CancellationToken ct)
         {
-            var command = new CreateDiaryCommand(requestDto.EntryDate, requestDto.Text);
-    
-            // STEG 2: Skicka det interna Command-objektet till MediatR
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var name = User.FindFirstValue(ClaimTypes.Name);
+            var email = User.FindFirstValue(ClaimTypes.Email);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new { error = "Kunde inte identifiera användaren från token." });
+            }
+            
+            var command = new CreateDiaryCommand(userId, name, email, requestDto.EntryDate, requestDto.Text);
             var result = await _mediator.Send(command, ct);
 
-            // STEG 3: Hantera resultatet (denna logik är densamma som förut)
             if (result.IsFailure)
             {
                 return result.Error.Type switch
@@ -43,11 +51,11 @@ namespace StudyTeknik.Controllers
                 };
             }
 
-            return Created($"/api/diaries/{result.Value!.Id}", result.Value);
-
-        }
+            return Created($"/api/diaries/{result.Value!.Id}", result.Value);}
 
         [HttpPut("UpdateDiary")]
+        [Authorize(Policy = "HasWriteScope")]
+
         public async Task<IActionResult> UpdateDiary(Guid Id, [FromBody] UpdateDiaryDto dto, CancellationToken ct)
         {
             var command = new UpdateDiaryCommand(Id, dto.Text);
@@ -66,6 +74,8 @@ namespace StudyTeknik.Controllers
         }
         
         [HttpPatch("UpdateDiaryDetails/{id:guid}")]
+        [Authorize(Policy = "HasWriteScope")]
+
         
         public async Task<IActionResult> UpdateDiaryDetails(Guid id, [FromBody] JsonPatchDocument<UpdateDiaryDetailsDto> patchDoc, CancellationToken ct)
         {
@@ -85,10 +95,19 @@ namespace StudyTeknik.Controllers
         }
 
         [HttpDelete("DeleteDiary/{id:guid}")]
+        [Authorize(Policy = "HasWriteScope")]
+
 
         public async Task<IActionResult> DeleteDiary(Guid id, CancellationToken ct)
         {
-            var command = new DeleteDiaryCommand(id);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new { error = "Kunde inte identifiera användaren" });
+            }
+            
+            var command = new DeleteDiaryCommand(id, userId); 
+            
             var result = await _mediator.Send(command, ct);
             
             if (result.IsFailure)
@@ -104,22 +123,29 @@ namespace StudyTeknik.Controllers
         }
 
         [HttpGet("GetAllDiariesForStudent")]
-
+        [Authorize(Policy = "HasReadScope")]
         public async Task<IActionResult> GetAllDiariesForStudent(CancellationToken ct)
         {
-            var query = new GetAllDiaryQuery();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new { error = "Kunde inte identifiera användaren från token." });
+            }
+
+            var query = new GetAllDiaryQuery(userId);
             var result = await _mediator.Send(query, ct);
 
             if (result.IsFailure)
             {
                 return BadRequest(result.Error);
             }
-            
+
             return Ok(result.Value);
         }
 
         [HttpGet("GetGiaryById/{id:guid}")]
-
+        [Authorize(Policy = "HasReadScope")]
         public async Task<IActionResult> GetGiaryById(Guid id, CancellationToken ct)
         {
             var query = new GetDiaryByIdQuery(id);
