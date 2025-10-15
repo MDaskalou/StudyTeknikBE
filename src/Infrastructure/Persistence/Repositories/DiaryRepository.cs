@@ -13,17 +13,13 @@ namespace Infrastructure.Persistence.Repositories
         private readonly AppDbContext _db;
         public DiaryRepository(AppDbContext db) => _db = db;
 
-        public async Task<IReadOnlyList<DiaryEntry>> GetByStudentAsync(Guid studentId, CancellationToken ct)
+        public async Task<IReadOnlyList<DiaryEntity>> GetAllForStudentAsync(Guid studentId, CancellationToken ct)
         {
-            if (studentId == Guid.Empty) return Array.Empty<DiaryEntry>();
-
-            var rows = await _db.Diaries
+            return await _db.Diaries
                 .AsNoTracking()
-                .Where(e => e.StudentId == studentId)
-                .OrderByDescending(e => e.EntryDate)
+                .Where(d => d.StudentId == studentId)
+                .OrderByDescending(d => d.EntryDate)
                 .ToListAsync(ct);
-
-            return rows.Select(e => DiaryMapper.ToModel(e)!).ToList();
         }
 
         public async Task<bool> EntryExistsForDateAsync(Guid studentId, DateOnly entryDate, CancellationToken ct)
@@ -96,19 +92,13 @@ namespace Infrastructure.Persistence.Repositories
             }
         }
 
-        public async Task<IReadOnlyList<GetAllDiaryDto>> GetAllDiariesForStudentAsync(Guid studentId, CancellationToken ct)
+        public async Task<IReadOnlyList<DiaryEntity>> GetAllDiariesForStudentAsync(Guid studentId, CancellationToken ct)
         {
-            return await _db.Diaries // Bytte namn till DiaryEntries för att matcha din DbContext
+            return await _db.Diaries
                 .AsNoTracking()
                 .Where(d => d.StudentId == studentId)
                 .OrderByDescending(d => d.EntryDate)
-                .Select(d => new GetAllDiaryDto(
-                    // Korrekt ordning: Id, TextSnippet, EntryDate
-                    d.Id,
-                    d.Text.Length > 100 ? d.Text.Substring(0, 100) + "..." : d.Text,
-                    d.EntryDate
-                ))
-                .ToListAsync(ct);
+                .ToListAsync(ct); // Vi tar bort .Select()-mappningen här
         }
     }
         

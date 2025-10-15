@@ -6,7 +6,7 @@ namespace Application.Diary.Commands.DeleteDiary
     {
         public DeleteDiaryCommandValidator()
         {
-            RuleFor(d => d.Id).NotEmpty();  
+            RuleFor(d => d.UserId).NotEmpty();  
         }
     }
 }

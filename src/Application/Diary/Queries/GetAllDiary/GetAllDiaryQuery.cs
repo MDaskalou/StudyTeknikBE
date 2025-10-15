@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Application.Diary.Queries.GetAllDiary
 {
-    public sealed record GetAllDiaryQuery : IRequest<OperationResult<IReadOnlyList<GetAllDiaryDto>>>;
+    public sealed record GetAllDiaryQuery(string UserId) : IRequest<OperationResult<IReadOnlyList<GetAllDiaryDto>>>;
     
         
     

@@ -12,6 +12,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="Google_GenerativeAI" Version="3.3.0" />
+      <PackageReference Include="Grpc.Core.Api" Version="2.71.0" />
+      <PackageReference Include="LLMSharp.Google.Ai.Generativelanguage.V1Beta2" Version="1.0.2" />
       <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">

@@ -20,6 +20,7 @@ using System.Linq;
 using Application.Student.Repository;
 using Infrastructure.Persistence.Repositories;
 using System.IdentityModel.Tokens.Jwt;
+using Application.Abstractions.IPersistence;
 
 namespace StudyTeknik;
 
@@ -159,11 +160,11 @@ public class Program
         builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
         
         //Repositoy
-        // I din Program.cs
-
-
         builder.Services.AddScoped<IStudentRepository, StudentRepository>();
         builder.Services.AddScoped<IDiaryRepository, DiaryRepository>(); 
+        
+        //AIService
+        builder.Services.AddScoped<IAIService, AIService>();
 
 
         // AuthZ
