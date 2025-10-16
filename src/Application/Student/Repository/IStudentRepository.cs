@@ -18,8 +18,12 @@ namespace Application.Student.Repository
         Task<bool> ClassExistsAsync(Guid classId, CancellationToken ct);
 
         // === WRITE (SKRIVA DATA) ===
-        Task<OperationResult> AddAsync(UserEntity user, Guid classId, CancellationToken ct);
+        Task<OperationResult> AddAsync(UserEntity user, CancellationToken ct);
         Task<OperationResult> UpdateAsync(UserEntity user, CancellationToken ct);
         Task<OperationResult> DeleteAsync(Guid id, CancellationToken ct);
+        
+        // ===Externa Subject===
+        
+        Task<UserEntity?> GetByExternalIdAsync(string externalId, CancellationToken ct);
     }
 }

@@ -3,6 +3,6 @@ using MediatR;
 
 namespace Application.Diary.Commands.DeleteDiary
 {
-    public sealed record DeleteDiaryCommand(Guid Id) : IRequest<OperationResult>;
+    public sealed record DeleteDiaryCommand(Guid DiaryEntityId, string UserId) : IRequest<OperationResult>;
 
 }

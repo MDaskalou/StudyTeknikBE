@@ -47,6 +47,7 @@ namespace Infrastructure.DependencyInjection
             services.AddScoped<ITeacherRepository, TeacherRepository>();
             
             
+            
 
 
             return services;

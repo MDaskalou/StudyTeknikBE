@@ -63,7 +63,7 @@ public sealed class CreateStudentHandler
             ExternalSubject = "Student"
         };
         
-        var addResult = await _studentRepository.AddAsync(user, command.ClassId, ct);
+        var addResult = await _studentRepository.AddAsync(user, ct);
         if (addResult.IsFailure)
         {
             // Om något gick fel i databasen, skicka felet vidare

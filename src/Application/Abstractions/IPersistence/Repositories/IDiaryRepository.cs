@@ -1,5 +1,4 @@
 ﻿using Application.Common.Results;
-using Application.Diary.Dtos;
 using Domain.Entities;
 using Domain.Models.Diary;
 
@@ -7,8 +6,9 @@ namespace Application.Abstractions.IPersistence.Repositories
 {
     public interface IDiaryRepository
     {
-        Task<IReadOnlyList<DiaryEntry>> GetByStudentAsync(Guid studentId, CancellationToken ct);
-        
+        // Detta är den enda, korrekta metoden för att hämta alla inlägg för en student.
+        Task<IReadOnlyList<DiaryEntity>> GetAllForStudentAsync(Guid studentId, CancellationToken ct);
+
         Task<bool> EntryExistsForDateAsync(Guid studentId, DateOnly entryDate, CancellationToken ct);
         
         Task<OperationResult> AddAsync(DiaryEntry entry, CancellationToken ct);
@@ -18,9 +18,5 @@ namespace Application.Abstractions.IPersistence.Repositories
         Task<DiaryEntity?> GetTrackedByIdAsync(Guid id, CancellationToken ct);
         
         Task<OperationResult> DeleteAsync(DiaryEntity diaryEntity, CancellationToken ct);
-        
-        Task<IReadOnlyList<GetAllDiaryDto>> GetAllDiariesForStudentAsync(Guid studentId, CancellationToken ct);
-
-        
     }
 }
