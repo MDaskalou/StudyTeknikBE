@@ -36,6 +36,8 @@ namespace Domain.Models.Users
 
         public static StudentConsent Create(bool given, string? setBy)
             => given ? Granted(setBy) : Revoked(setBy);
+        public static StudentConsent Load(bool given, string? setBy, DateTime? givenAtUtc)
+            => new StudentConsent(given, given ? givenAtUtc : null, setBy);
 
         // Viktigt: matcha ValueObject-signaturen (object?)
         protected override IEnumerable<object?> GetEqualityComponents()

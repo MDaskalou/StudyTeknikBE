@@ -1,9 +1,10 @@
 ﻿using Application.Common.Results;
 using Application.Student.Dtos;
 using Application.Student.Repository;
-using Domain.Common; // <-- Lägg till denna using
+using Domain.Common;
 using FluentValidation;
 using MediatR;
+using Domain.Models.Users; // <-- VIKTIGT: Importera din rika User-modell
 using Microsoft.AspNetCore.JsonPatch;
 using System;
 using System.Linq;
@@ -27,54 +28,44 @@ namespace Application.Student.Commands.UpdateStudentDetails
 
         public async Task<OperationResult> Handle(UpdateStudentDetailsCommand request, CancellationToken ct)
         {
-            var userEntity = await _studentRepository.GetTrackedByIdAsync(request.Id, ct);
-            if (userEntity is null)
+            // STEG 1: Hämta den riktiga "patienten" (User-domänmodellen), inte fotografiet.
+            var user = await _studentRepository.GetTrackedDomainUserByIdAsync(request.Id, ct);
+            if (user is null)
             {
-                // Använder ErrorCodes
                 return OperationResult.Failure(Error.NotFound(ErrorCodes.StudentError.NotFound, $"Student med ID {request.Id} kunde inte hittas."));
             }
 
             var detailsToPatch = new UpdateStudentDetailsDto
             {
-                FirstName = userEntity.FirstName,
-                LastName = userEntity.LastName,
-                Email = userEntity.Email,
-                SecurityNumber = userEntity.SecurityNumber
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                SecurityNumber = user.SecurityNumber
             };
+            request.PatchDoc.ApplyTo(detailsToPatch);
 
-            try
-            {
-                request.PatchDoc.ApplyTo(detailsToPatch);
-            }
-            catch (Exception ex)
-            {
-                // Använder ErrorCodes
-                return OperationResult.Failure(Error.Validation(ErrorCodes.General.Validation, ex.Message));
-            }
-
+            // Valideringslogiken är densamma.
             var validationResult = await _dtoValidator.ValidateAsync(detailsToPatch, ct);
             if (!validationResult.IsValid)
             {
                 var errorMessages = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage).ToArray());
-                // Använder ErrorCodes
                 var error = Error.Validation(ErrorCodes.General.Validation, errorMessages);
                 return OperationResult.Failure(error);
             }
 
             var newEmail = detailsToPatch.Email.Trim().ToLowerInvariant();
-            if (userEntity.Email != newEmail && await _studentRepository.EmailExistsAsync(newEmail, ct))
+            if (user.Email != newEmail && await _studentRepository.EmailExistsAsync(newEmail, ct))
             {
-                // Använder ErrorCodes
                 return OperationResult.Failure(Error.Conflict(ErrorCodes.StudentError.EmailAlreadyExists, "Den nya e-postadressen används redan."));
             }
-
-            userEntity.FirstName = detailsToPatch.FirstName;
-            userEntity.LastName = detailsToPatch.LastName;
-            userEntity.Email = newEmail;
-            userEntity.SecurityNumber = detailsToPatch.SecurityNumber;
-            userEntity.UpdatedAtUtc = DateTime.UtcNow;
-
-            return await _studentRepository.UpdateAsync(userEntity, ct);
+            
+            // STEG 2: KORREKT! Utför operationen på den riktiga patienten med dess egna, säkra metoder.
+            user.SetName(detailsToPatch.FirstName.Trim(), detailsToPatch.LastName.Trim());
+            user.SetEmail(newEmail);
+            user.SetSecurityNumber(detailsToPatch.SecurityNumber.Trim());
+            
+            // STEG 3: Lämna tillbaka den uppdaterade patienten till arkivet (databasen).
+            return await _studentRepository.UpdateAsync(user, ct);
         }
     }
 }

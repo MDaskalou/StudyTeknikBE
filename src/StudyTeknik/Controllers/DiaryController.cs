@@ -27,31 +27,7 @@ namespace StudyTeknik.Controllers
 
         [HttpPost("CreateDiary")]
         [Authorize(Policy = "HasWriteScope")]
-
-        public async Task<IActionResult> CreateDiaryEntry([FromBody] CreateDiaryRequestDto requestDto, CancellationToken ct)
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var name = User.FindFirstValue(ClaimTypes.Name);
-            var email = User.FindFirstValue(ClaimTypes.Email);
-
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized(new { error = "Kunde inte identifiera användaren från token." });
-            }
-            
-            var command = new CreateDiaryCommand(userId, name, email, requestDto.EntryDate, requestDto.Text);
-            var result = await _mediator.Send(command, ct);
-
-            if (result.IsFailure)
-            {
-                return result.Error.Type switch
-                {
-                    ErrorType.Conflict => Conflict(result.Error),
-                    _ => BadRequest(result.Error)
-                };
-            }
-
-            return Created($"/api/diaries/{result.Value!.Id}", result.Value);}
+        
 
         [HttpPut("UpdateDiary/{Id:guid}")]
         [Authorize(Policy = "HasWriteScope")]

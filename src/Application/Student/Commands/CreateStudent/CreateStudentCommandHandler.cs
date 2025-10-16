@@ -2,7 +2,8 @@
 using Application.Student.Commands.CreateStudent;
 using Application.Student.Dtos;
 using Application.Student.Repository;
-using Domain.Entities;
+using Domain.Models.Users; // <-- VIKTIGT: Importera din rika User-modell
+using Domain.Models.Common;
 using FluentValidation;
 using MediatR;
 using System;
@@ -10,7 +11,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Domain.Common;
-using Domain.Models.Classes;
 
 public sealed class CreateStudentHandler
     : IRequestHandler<CreateStudentCommand, OperationResult<StudentCreatedDto>>
@@ -38,8 +38,7 @@ public sealed class CreateStudentHandler
 
         if (await _studentRepository.EmailExistsAsync(email, ct))
         {
-            var error = Error.Conflict(ErrorCodes.StudentError.EmailAlreadyExists,
-                "En student med den här eposten finns redan.");
+            var error = Error.Conflict(ErrorCodes.StudentError.EmailAlreadyExists, "En student med den här eposten finns redan.");
             return OperationResult<StudentCreatedDto>.Failure(error);
         }
 
@@ -49,24 +48,19 @@ public sealed class CreateStudentHandler
             return OperationResult<StudentCreatedDto>.Failure(error);
         }
 
-        var now = DateTime.UtcNow;
-        var user = new UserEntity
-        {
-            Id = Guid.NewGuid(),
-            CreatedAtUtc = now, UpdatedAtUtc = now,
-            FirstName = command.FirstName.Trim(), 
-            LastName = command.LastName.Trim(),
-            Email = email, 
-            Role = Domain.Abstractions.Enum.UserRole.Student,
-            SecurityNumber = command.SecurityNumber,
-            ExternalProvider = "manual", 
-            ExternalSubject = "Student"
-        };
+        var user = new User(
+            command.FirstName.Trim(),
+            command.LastName.Trim(),
+            command.SecurityNumber,
+            email,
+            Role.Student,
+            "manual", 
+            "Student" 
+        );
         
         var addResult = await _studentRepository.AddAsync(user, ct);
         if (addResult.IsFailure)
         {
-            // Om något gick fel i databasen, skicka felet vidare
             return OperationResult<StudentCreatedDto>.Failure(addResult.Error);
         }
         

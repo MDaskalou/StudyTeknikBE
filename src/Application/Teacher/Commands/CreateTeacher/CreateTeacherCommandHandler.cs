@@ -12,6 +12,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Domain.Common;
+using Domain.Models.Common;
 
 namespace Application.Teacher.Commands.CreateTeacher
 {
@@ -56,7 +57,7 @@ namespace Application.Teacher.Commands.CreateTeacher
                 LastName = command.LastName.Trim(),
                 Email = email,
                 SecurityNumber = command.SecurityNumber.Trim(),
-                Role = UserRole.Teacher,
+                Role = Role.Teacher,
                 CreatedAtUtc = now,
                 UpdatedAtUtc = now,
                 ExternalProvider = "manual",

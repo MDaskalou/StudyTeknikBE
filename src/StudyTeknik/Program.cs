@@ -21,6 +21,7 @@ using Application.Student.Repository;
 using Infrastructure.Persistence.Repositories;
 using System.IdentityModel.Tokens.Jwt;
 using Application.Abstractions.IPersistence;
+using Infrastructure.Middleware;
 
 namespace StudyTeknik;
 
@@ -254,6 +255,7 @@ public class Program
         app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
         app.UseAuthentication();
         app.UseAuthorization();
+        app.UseMiddleware<UserProvisioningMiddleware>();
         app.UseMiddleware<ForbiddenLoggingMiddleware>();
         app.MapControllers();
 

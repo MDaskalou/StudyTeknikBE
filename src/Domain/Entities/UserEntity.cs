@@ -1,4 +1,4 @@
-﻿using Domain.Abstractions.Enum;
+﻿using Domain.Models.Common;
 
 namespace Domain.Entities
 {
@@ -12,13 +12,13 @@ namespace Domain.Entities
         public string LastName  { get; set; } = default!;
         public string SecurityNumber { get; set; } = default!; 
         public string Email { get; set; } = default!;
-        public UserRole Role { get; set; } 
+        public Role Role { get; set; } 
         
-        public string ExternalProvider { get; set; } = default!;
-        public string ExternalSubject  { get; set; } = default!;
+        public string? ExternalProvider { get; set; } = default!;
+        public string? ExternalSubject  { get; set; } = default!;
         
         public bool ConsentGiven { get; set; }
         public DateTime? ConsentGivenAtUtc { get; set; }
-        public string? ConsentSetby { get; set; }
+        public string? ConsentSetBy { get; set; }
     }
 }

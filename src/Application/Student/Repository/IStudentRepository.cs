@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Domain.Models.Users;
 
 namespace Application.Student.Repository
 {
@@ -18,9 +19,11 @@ namespace Application.Student.Repository
         Task<bool> ClassExistsAsync(Guid classId, CancellationToken ct);
 
         // === WRITE (SKRIVA DATA) ===
-        Task<OperationResult> AddAsync(UserEntity user, CancellationToken ct);
-        Task<OperationResult> UpdateAsync(UserEntity user, CancellationToken ct);
+        Task<OperationResult> AddAsync(User user, CancellationToken ct);
+        Task<OperationResult> UpdateAsync(User user, CancellationToken ct);
+        Task<User?> GetTrackedDomainUserByIdAsync(Guid id, CancellationToken ct);
         Task<OperationResult> DeleteAsync(Guid id, CancellationToken ct);
+        Task<User?> GetDomainUserByExternalIdAsync(string externalId, CancellationToken ct);
         
         // ===Externa Subject===
         
