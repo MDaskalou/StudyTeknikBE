@@ -3,8 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 
-namespace Infrastructure.Persistence.Configurations
-{
+
     // TODO: Unik e-post. Maxlängder. Indexering.
     // Den här klassen ska konfigurera entiteten User med hjälp av Fluent API.
     // Den ska innehålla all nödvändig konfiguration för att mappa User-entiteten till databastabellen.
@@ -43,8 +42,9 @@ namespace Infrastructure.Persistence.Configurations
                     .IsRequired();
                 builder.HasIndex(u => u.Role);
 
+                builder.Property(u => u.ConsentSetBy)
+                    .HasMaxLength(256);
                 // ev. fler fält att ignorera om de är object/komplexa
             }
         }
     }
-}

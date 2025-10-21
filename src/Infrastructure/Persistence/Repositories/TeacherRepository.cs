@@ -4,7 +4,7 @@ using Application.Teacher.Repository;
 using Domain.Abstractions.Enum;
 using Application.Mapper;
 using Domain.Entities;
-using Domain.Models.Common;
+using Domain.Common;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 

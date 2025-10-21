@@ -3,7 +3,7 @@ using Application.Student.Commands.CreateStudent;
 using Application.Student.Dtos;
 using Application.Student.Repository;
 using Domain.Models.Users; // <-- VIKTIGT: Importera din rika User-modell
-using Domain.Models.Common;
+using Domain.Common;
 using FluentValidation;
 using MediatR;
 using System;

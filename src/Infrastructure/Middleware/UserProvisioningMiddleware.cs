@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Domain.Models.Users;
-using Domain.Models.Common;
+using Domain.Common;
 using Application.Student.Repository; // VIKTIGT: Importera repository-interfacet
 
 namespace Infrastructure.Middleware

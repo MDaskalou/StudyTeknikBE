@@ -9,7 +9,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Student.Dtos;
-using Domain.Models.Common;
 using Domain.Models.Users;
 
 namespace Application.Student.Commands.UpdateStudent

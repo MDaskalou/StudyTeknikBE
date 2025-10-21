@@ -19,6 +19,7 @@ namespace StudyTeknik.Controllers
 {
     [ApiController]
     [Route("api/diary")]
+    [Authorize]
 
     public sealed class DiaryController : ControllerBase
     {
@@ -26,12 +27,32 @@ namespace StudyTeknik.Controllers
         public DiaryController(IMediator mediator) => _mediator = mediator;
 
         [HttpPost("CreateDiary")]
-        [Authorize(Policy = "HasWriteScope")]
-        
+        public async Task<IActionResult> CreateDiaryEntry([FromBody] CreateDiaryRequestDto requestDto, CancellationToken ct)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var name = User.FindFirstValue(ClaimTypes.Name);
+            var email = User.FindFirstValue(ClaimTypes.Email);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new { error = "Kunde inte identifiera användaren från token." });
+            }
+            
+            var command = new CreateDiaryCommand(userId, name, email, requestDto.EntryDate, requestDto.Text);
+            var result = await _mediator.Send(command, ct);
+
+            if (result.IsFailure)
+            {
+                return result.Error.Type switch
+                {
+                    ErrorType.Conflict => Conflict(result.Error),
+                    _ => BadRequest(result.Error)
+                };
+            }
+
+            return Created($"/api/diaries/{result.Value!.Id}", result.Value);}
 
         [HttpPut("UpdateDiary/{Id:guid}")]
-        [Authorize(Policy = "HasWriteScope")]
-
         public async Task<IActionResult> UpdateDiary(Guid id, [FromBody] UpdateDiaryDto dto, CancellationToken ct)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -56,8 +77,6 @@ namespace StudyTeknik.Controllers
         }
         
         [HttpPatch("UpdateDiaryDetails/{id:guid}")]
-        [Authorize(Policy = "HasWriteScope")]
-
         
         public async Task<IActionResult> UpdateDiaryDetails(Guid id, [FromBody] JsonPatchDocument<UpdateDiaryDetailsDto> patchDoc, CancellationToken ct)
         {
@@ -77,8 +96,6 @@ namespace StudyTeknik.Controllers
         }
 
         [HttpDelete("DeleteDiary/{id:guid}")]
-        [Authorize(Policy = "HasWriteScope")]
-
 
         public async Task<IActionResult> DeleteDiary(Guid id, CancellationToken ct)
         {
@@ -105,7 +122,6 @@ namespace StudyTeknik.Controllers
         }
 
         [HttpGet("GetAllDiariesForStudent")]
-        [Authorize(Policy = "HasReadScope")]
         public async Task<IActionResult> GetAllDiariesForStudent(CancellationToken ct)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -127,7 +143,6 @@ namespace StudyTeknik.Controllers
         }
 
         [HttpGet("GetGiaryById/{id:guid}")]
-        [Authorize(Policy = "HasReadScope")]
         public async Task<IActionResult> GetGiaryById(Guid id, CancellationToken ct)
         {
             var query = new GetDiaryByIdQuery(id);

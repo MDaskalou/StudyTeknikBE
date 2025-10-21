@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Domain.Models.Common;
+using Domain.Common;
 using Domain.Models.Users;
 using Infrastructure.Persistence.Mapper;
 

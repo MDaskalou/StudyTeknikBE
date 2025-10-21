@@ -1,5 +1,5 @@
 ﻿using Domain.Entities;
-using Domain.Models.Common;
+using Domain.Common;
 using Domain.Models.Users;
 using System;
 

@@ -7,6 +7,7 @@ using Application.AI.Dto;
 namespace StudyTeknik.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class AiController : ControllerBase
     {
@@ -19,7 +20,6 @@ namespace StudyTeknik.Controllers
         }
 
         [HttpPost("Rewrite")]
-        [Authorize(Policy = "HasWriteScope")]
 
         public async Task<IActionResult> RewriteText([FromBody] RewriteRequestDto request,
             CancellationToken cancellationToken)

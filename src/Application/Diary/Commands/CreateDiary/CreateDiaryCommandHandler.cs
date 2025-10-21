@@ -5,7 +5,6 @@ using Application.Student.Repository;
 using Domain.Abstractions.Enum;
 using Domain.Common;
 using Domain.Entities;
-using Domain.Models.Common;
 using Domain.Models.Diary;
 using FluentValidation;
 using MediatR;

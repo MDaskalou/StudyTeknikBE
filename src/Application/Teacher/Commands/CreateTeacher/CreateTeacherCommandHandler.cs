@@ -12,7 +12,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Domain.Common;
-using Domain.Models.Common;
 
 namespace Application.Teacher.Commands.CreateTeacher
 {

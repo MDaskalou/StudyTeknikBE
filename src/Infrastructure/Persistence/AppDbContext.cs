@@ -22,6 +22,8 @@ namespace Infrastructure.Persistence
         public DbSet<EnrollmentEntity> Enrollments => Set<EnrollmentEntity>();
         public DbSet<MentorAssigmentEntity> MentorAssignments => Set<MentorAssigmentEntity>(); // se notis nedan
         public DbSet<AuditLogEntity> AuditLogs => Set<AuditLogEntity>();
+        public DbSet<DeckEntity> Decks => Set<DeckEntity>();
+        public DbSet<FlashCardEntity> FlashCards => Set<FlashCardEntity>();
         
         public AppDbContext (DbContextOptions<AppDbContext> options) : base(options){}
 

@@ -1,5 +1,4 @@
 ﻿using Domain.Common;
-using Domain.Models.Common;
 
 namespace Domain.Models.Users
 {

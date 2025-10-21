@@ -1,5 +1,5 @@
 ﻿using Domain.Abstractions;
-using Domain.Models.Common;
+using Domain.Common;
 
 namespace Domain.Models.Users
 {

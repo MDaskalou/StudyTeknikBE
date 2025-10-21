@@ -1,6 +1,6 @@
 ﻿using Domain.Abstractions.Enum;
 using Domain.Entities;
-using Domain.Models.Common;
+using Domain.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
