@@ -23,7 +23,6 @@ using Infrastructure.Persistence.Repositories;
 using System.IdentityModel.Tokens.Jwt;
 using Application.Abstractions.IPersistence;
 using Application.Decks.IRepository;
-using Infrastructure.Middleware;
 
 namespace StudyTeknik;
 
@@ -166,6 +165,7 @@ public class Program
         {
             // I DEVELOPMENT: Kör vår fejkade middleware FÖRE UseAuthorization
             app.UseDevelopmentAuthentication();
+            
         }
         else
         {
