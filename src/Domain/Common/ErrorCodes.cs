@@ -29,5 +29,17 @@
             public const string DailyLimitExceeded = "Diary.DailyLimitExceeded";
 
         }
+
+        public static class DeckError
+        {
+            public const string NotFound = "Deck.NotFound";
+            public const string TitleAlreadyExists = "Deck.TitleAlreadyExists"; 
+            public const string NotOwnedByUser = "Deck.NotOwnedByUser";
+        }
+        public static class FlashCardError
+        {
+            public const string NotFound = "FlashCard.NotFound";
+            public const string NotInDeck = "FlashCard.NotInDeck";
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Domain.Models.Common
+﻿namespace Domain.Common
 {
     
     //fasta listor som används i hela domänen

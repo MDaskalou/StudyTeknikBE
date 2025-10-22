@@ -4,6 +4,7 @@ using Application.Teacher.Repository;
 using Domain.Abstractions.Enum;
 using Application.Mapper;
 using Domain.Entities;
+using Domain.Common;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,7 +22,7 @@ namespace Infrastructure.Persistence.Repositories
         {
            var teacherUser = await _db.Users
                .AsNoTracking()
-               .Where(u => u.Id == id && u.Role == UserRole.Teacher)
+               .Where(u => u.Id == id && u.Role == Role.Teacher)
                .Select (u => new
                {
                    u.Id,
@@ -57,7 +58,7 @@ namespace Infrastructure.Persistence.Repositories
         {
             var teacher  = await _db.Users
                 .AsNoTracking()
-                .Where(u => u.Role == UserRole.Teacher)
+                .Where(u => u.Role == Role.Teacher)
                 .OrderBy(u => u.FirstName).ThenBy(u=>u.LastName)
                 .ToListAsync(ct);
             
@@ -118,13 +119,13 @@ namespace Infrastructure.Persistence.Repositories
         public async Task<UserEntity?> GetTrackedByIdAsync(Guid id, CancellationToken ct)
         {
             
-            return await _db.Users.FirstOrDefaultAsync(u => u.Id == id && u.Role == UserRole.Teacher, ct);
+            return await _db.Users.FirstOrDefaultAsync(u => u.Id == id && u.Role == Role.Teacher, ct);
         }
         
         public async Task<OperationResult> DeleteAsync(Guid id, CancellationToken ct)
         {
             var rowsAffected = await _db.Users
-                .Where (u => u.Id == id && u.Role == UserRole.Teacher)
+                .Where (u => u.Id == id && u.Role == Role.Teacher)
                 .ExecuteDeleteAsync(ct);
 
             if (rowsAffected == 0)

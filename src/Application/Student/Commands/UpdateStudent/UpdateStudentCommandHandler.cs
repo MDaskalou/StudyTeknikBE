@@ -8,6 +8,8 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.Student.Dtos;
+using Domain.Models.Users;
 
 namespace Application.Student.Commands.UpdateStudent
 {
@@ -27,6 +29,8 @@ namespace Application.Student.Commands.UpdateStudent
             var validationResult = await _validator.ValidateAsync(command, ct);
             if (!validationResult.IsValid)
             {
+                var errorMessages = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage).ToArray());
+                var validationError = Error.Validation(ErrorCodes.General.Validation, errorMessages);
                 return OperationResult.Failure(Error.Validation(ErrorCodes.General.Validation, string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage).ToArray())));
             }
 
@@ -42,14 +46,19 @@ namespace Application.Student.Commands.UpdateStudent
                 return OperationResult.Failure(Error.Conflict(ErrorCodes.StudentError.EmailAlreadyExists, "Den nya e-postadressen används redan."));
             }
             
-            // Uppdatera entiteten direkt från kommandot
-            userEntity.FirstName = command.FirstName.Trim();
-            userEntity.LastName = command.LastName.Trim();
-            userEntity.Email = newEmail;
-            userEntity.SecurityNumber = command.SecurityNumber.Trim();
-            userEntity.UpdatedAtUtc = DateTime.UtcNow;
+            var user = new User(
+                command.FirstName.Trim(),
+                command.LastName.Trim(),
+                command.SecurityNumber,
+                command.Email.Trim(),
+                Role.Student,
+                "manual", // Anger att denna användare skapades manuellt i systemet
+                "Student" // Ett platshållar-ID
+            );
+            
+            var updateRequest = new StudentDetailsDto(user.Id, user.FirstName, user.LastName, user.Email );
+            return OperationResult<StudentDetailsDto>.Success(updateRequest);
 
-            return await _studentRepository.UpdateAsync(userEntity, ct);
         }
     }
 }

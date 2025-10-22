@@ -56,7 +56,7 @@ namespace Application.Teacher.Commands.CreateTeacher
                 LastName = command.LastName.Trim(),
                 Email = email,
                 SecurityNumber = command.SecurityNumber.Trim(),
-                Role = UserRole.Teacher,
+                Role = Role.Teacher,
                 CreatedAtUtc = now,
                 UpdatedAtUtc = now,
                 ExternalProvider = "manual",

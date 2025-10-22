@@ -27,6 +27,8 @@ namespace Application.Abstractions.IPersistence
         DbSet<EnrollmentEntity> Enrollments { get; }
         DbSet<MentorAssigmentEntity> MentorAssignments { get; }
         DbSet<AuditLogEntity> AuditLogs { get; }
+        DbSet<DeckEntity> Decks { get; }
+        DbSet<FlashCardEntity> FlashCards { get; }
         
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }

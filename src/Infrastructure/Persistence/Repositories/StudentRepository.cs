@@ -10,6 +10,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Domain.Common;
+using Domain.Models.Users;
+using Infrastructure.Persistence.Mapper;
 
 namespace Infrastructure.Persistence.Repositories
 {
@@ -24,7 +27,7 @@ namespace Infrastructure.Persistence.Repositories
         {
             return await _db.Users
                 .AsNoTracking()
-                .Where(u => u.Role == UserRole.Student)
+                .Where(u => u.Role == Role.Student)
                 .OrderBy(u => u.FirstName).ThenBy(u => u.LastName)
                 .Select(u => new StudentDetailsDto(u.Id, u.FirstName, u.LastName, u.Email))
                 .ToListAsync(ct);
@@ -34,14 +37,14 @@ namespace Infrastructure.Persistence.Repositories
         {
             return await _db.Users
                 .AsNoTracking()
-                .Where(u => u.Id == id && u.Role == UserRole.Student)
+                .Where(u => u.Id == id && u.Role == Role.Student)
                 .Select(u => new GetStudentByIdDto(u.Id, u.FirstName, u.LastName, u.Email, u.SecurityNumber, null))
                 .FirstOrDefaultAsync(ct);
         }
 
         public async Task<UserEntity?> GetTrackedByIdAsync(Guid id, CancellationToken ct)
         {
-            return await _db.Users.FirstOrDefaultAsync(u => u.Id == id && u.Role == UserRole.Student, ct);
+            return await _db.Users.FirstOrDefaultAsync(u => u.Id == id && u.Role == Role.Student, ct);
         }
 
         public async Task<bool> EmailExistsAsync(string email, CancellationToken ct)
@@ -56,19 +59,20 @@ namespace Infrastructure.Persistence.Repositories
 
         // === WRITE-METODER ===
 
-        public async Task<OperationResult> AddAsync(UserEntity user, CancellationToken ct)
+        public async Task<OperationResult> AddAsync(User user, CancellationToken ct)
         {
+            var userEntity = user.ToEntity();
             try
             {
                 var enrollment = new EnrollmentEntity
                 {
                     Id = Guid.NewGuid(),
-                    CreatedAtUtc = user.CreatedAtUtc,
-                    UpdatedAtUtc = user.UpdatedAtUtc,
-                    StudentId = user.Id,
+                    CreatedAtUtc = userEntity.CreatedAtUtc,
+                    UpdatedAtUtc = userEntity.UpdatedAtUtc,
+                    StudentId = userEntity.Id,
                 };
 
-                _db.Users.Add(user);
+                _db.Users.Add(userEntity);
                 _db.Enrollments.Add(enrollment);
                 await _db.SaveChangesAsync(ct);
                 return OperationResult.Success();
@@ -79,11 +83,13 @@ namespace Infrastructure.Persistence.Repositories
             }
         }
 
-        public async Task<OperationResult> UpdateAsync(UserEntity user, CancellationToken ct)
+        public async Task<OperationResult> UpdateAsync(User user, CancellationToken ct)
         {
+            var userEntity = user.ToEntity();
+
             try
             {
-                _db.Users.Update(user);
+                _db.Users.Update(userEntity);
                 await _db.SaveChangesAsync(ct);
                 return OperationResult.Success();
             }
@@ -102,7 +108,7 @@ namespace Infrastructure.Persistence.Repositories
                     .ExecuteDeleteAsync(ct);
 
                 var rowsAffected = await _db.Users
-                    .Where(u => u.Id == id && u.Role == UserRole.Student)
+                    .Where(u => u.Id == id && u.Role == Role.Student)
                     .ExecuteDeleteAsync(ct);
 
                 if (rowsAffected == 0)
@@ -123,6 +129,32 @@ namespace Infrastructure.Persistence.Repositories
         {
             return await _db.Users
                 .FirstOrDefaultAsync(u => u.ExternalSubject == externalId, ct);
+        }
+
+        public async Task<User?> GetDomainUserByExternalIdAsync(string externalId, CancellationToken ct)
+        {
+            var userEntity = await _db.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.ExternalSubject == externalId, ct);
+
+            if (userEntity is null)
+            {
+                return null;
+            }
+            
+            return userEntity.ToModel();
+        }
+
+        public async Task<User?> GetTrackedDomainUserByIdAsync(Guid id, CancellationToken ct)
+        {
+            var userEntity = await _db.Users
+                .FirstOrDefaultAsync(u => u.Id == id && u.Role == Role.Student, ct);
+            if (userEntity is null)
+            {
+                return null;
+            }
+            
+            return userEntity.ToModel();
         }
     }
 }

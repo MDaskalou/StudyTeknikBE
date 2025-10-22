@@ -10,6 +10,7 @@ using MediatR;
 namespace StudyTeknik.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     [Authorize]
     public class AiController : ControllerBase
@@ -23,8 +24,8 @@ namespace StudyTeknik.Controllers
         }
 
         [HttpPost("Rewrite")]
-        public async Task<IActionResult> RewriteText(
-            [FromBody] RewriteRequestDto request, 
+
+        public async Task<IActionResult> RewriteText([FromBody] RewriteRequestDto request,
             CancellationToken cancellationToken)
         {
             var command = new RewriteTextCommand(request.Text);

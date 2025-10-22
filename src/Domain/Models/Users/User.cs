@@ -1,5 +1,5 @@
 ﻿using Domain.Abstractions;
-using Domain.Models.Common;
+using Domain.Common;
 
 namespace Domain.Models.Users
 {
@@ -13,19 +13,21 @@ namespace Domain.Models.Users
 
         // Kärndata
         public string FirstName { get; private set; } = default!;
-        public string LastName  { get; private set; } = default!;
+        public string LastName { get; private set; } = default!;
         public string SecurityNumber { get; private set; } = default!; // personnummer som text
         public string Email { get; private set; } = default!;
-        public Role   Role  { get; private set; }
+        public Role Role { get; private set; }
 
         // Extern IdP
         public string? ExternalProvider { get; private set; } // t.ex. "clerk", "logto"
-        public string? ExternalSubject  { get; private set; } // IdP "sub"
+        public string? ExternalSubject { get; private set; } // IdP "sub"
 
         // VO: samtycke
         public StudentConsent Consent { get; private set; } = StudentConsent.Revoked(null);
 
-        private User() { } // För EF
+        private User()
+        {
+        } // För EF
 
         public User(
             string firstName,
@@ -34,7 +36,7 @@ namespace Domain.Models.Users
             string email,
             Role role,
             string? externalProvider = null,
-            string? externalSubject  = null)
+            string? externalSubject = null)
         {
             Id = Guid.NewGuid();
             CreatedAtUtc = DateTime.UtcNow;
@@ -82,7 +84,7 @@ namespace Domain.Models.Users
                 throw new ArgumentException("Efternamn krävs.", nameof(lastName));
 
             FirstName = firstName.Trim();
-            LastName  = lastName.Trim();
+            LastName = lastName.Trim();
             Touch();
         }
 
@@ -98,7 +100,7 @@ namespace Domain.Models.Users
 
         public void SetConsent(bool given, string? setBy)
         {
-            Consent = StudentConsent.Create(given, setBy);
+            Consent = StudentConsent.Create(given, setBy );
             Touch();
         }
 
@@ -110,18 +112,29 @@ namespace Domain.Models.Users
                 throw new ArgumentException("Subject krävs.", nameof(subject));
 
             ExternalProvider = provider.Trim().ToLowerInvariant();
-            ExternalSubject  = subject.Trim();
+            ExternalSubject = subject.Trim();
             Touch();
         }
 
         public void UnlinkExternalIdentity()
         {
             ExternalProvider = null;
-            ExternalSubject  = null;
+            ExternalSubject = null;
             Touch();
         }
-        
-        public static User Rehydrate(Guid id, string firstName, string lastName, string email, Role role)
+
+        public static User Load(
+            Guid id,
+            string firstName,
+            string lastName,
+            string email,
+            Role role,
+            string securityNumber,
+            DateTime createdAtUtc,
+            DateTime updatedAtUtc,
+            string? externalProvider,
+            string? externalSubject,
+            StudentConsent consent)
         {
             return new User
             {
@@ -129,7 +142,12 @@ namespace Domain.Models.Users
                 FirstName = firstName,
                 LastName = lastName,
                 Email = email,
-                Role = role
+                Role = role,
+                CreatedAtUtc = createdAtUtc,
+                UpdatedAtUtc = updatedAtUtc,
+                ExternalProvider = externalProvider,
+                ExternalSubject = externalSubject,
+                Consent = consent
             };
         }
 
