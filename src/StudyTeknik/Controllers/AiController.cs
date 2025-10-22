@@ -2,21 +2,25 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using Application.AI.Dto;
+using Application.AI.Commands;
+using Application.AI.Dtos;
+using Application.Common.Results;
+using MediatR;
 
 namespace StudyTeknik.Controllers
 {
     [ApiController]
     [Authorize]
     [Route("api/[controller]")]
+    [Authorize]
     public class AiController : ControllerBase
     {
         
-        private readonly IAIService _aiService;
+        private readonly ISender _mediator;
         
-        public AiController(IAIService aiService)
+        public AiController(ISender mediator)
         {
-            _aiService = aiService;
+            _mediator = mediator;
         }
 
         [HttpPost("Rewrite")]
@@ -24,25 +28,23 @@ namespace StudyTeknik.Controllers
         public async Task<IActionResult> RewriteText([FromBody] RewriteRequestDto request,
             CancellationToken cancellationToken)
         {
-            // Kollar om DTO:n är giltig (t.ex. om Text-fältet finns med)
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            var command = new RewriteTextCommand(request.Text);
 
-            // Anropar din service med texten från requesten
-            var rewrittenText = await _aiService.RewriteDiaryEntryAsync(request.Text, cancellationToken);
+            var result = await _mediator.Send(command, cancellationToken);
 
-            // Kollar om AI-tjänsten returnerade ett felmeddelande
-            if (rewrittenText.StartsWith("Kunde inte generera text"))
+            if (result.IsFailure)
             {
-                // Returnerar ett 500-fel (Internal Server Error)
-                return StatusCode(500, new { message = rewrittenText });
-            }
+                return result.Error.Type switch
+                {
+                    ErrorType.Validation => BadRequest(result.Error), 
+                    ErrorType.NotFound => NotFound(result.Error),   
+                    ErrorType.Conflict => Conflict(result.Error),  
+                    _ => StatusCode(500, result.Error)          
+                };            }
         
-            // Returnerar den nya texten med en 200 OK status
-            return Ok(new { rewrittenText });
+            return Ok(result.Value); 
         }
+    
         
     }
 }
