@@ -56,7 +56,7 @@ namespace Infrastructure.Persistence.Repositories
 
         // === WRITE-METODER ===
 
-        public async Task<OperationResult> AddAsync(UserEntity user, Guid classId, CancellationToken ct)
+        public async Task<OperationResult> AddAsync(UserEntity user, CancellationToken ct)
         {
             try
             {
@@ -66,7 +66,6 @@ namespace Infrastructure.Persistence.Repositories
                     CreatedAtUtc = user.CreatedAtUtc,
                     UpdatedAtUtc = user.UpdatedAtUtc,
                     StudentId = user.Id,
-                    ClassId = classId
                 };
 
                 _db.Users.Add(user);
@@ -118,6 +117,12 @@ namespace Infrastructure.Persistence.Repositories
             {
                 return OperationResult.Failure(Error.InternalServiceError("Database.Error", "Ett databasfel inträffade vid radering av student."));
             }
+        }
+
+        public async Task<UserEntity> GetByExternalIdAsync(string externalId, CancellationToken ct)
+        {
+            return await _db.Users
+                .FirstOrDefaultAsync(u => u.ExternalSubject == externalId, ct);
         }
     }
 }

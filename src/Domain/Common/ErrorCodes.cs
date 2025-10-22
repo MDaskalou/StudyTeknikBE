@@ -8,6 +8,8 @@
             public const string NotFound = "NotFound.Error";
             public const string Conflict = "Conflict.Error";
             public const string InternalServiceError = "InternalServiceError.Error";
+            public const string Forbidden = "Forbidden.Error"; 
+
         }
 
         public static class StudentError

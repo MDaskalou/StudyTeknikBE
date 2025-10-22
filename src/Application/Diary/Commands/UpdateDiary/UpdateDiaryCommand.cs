@@ -3,7 +3,7 @@ using MediatR;
 
 namespace Application.Diary.Commands.UpdateDiary
 {
-    public sealed record UpdateDiaryCommand(Guid Id, string Text) : IRequest<OperationResult>;
+    public sealed record UpdateDiaryCommand(Guid Id, string UserId,string Text) : IRequest<OperationResult>;
 
 
 }

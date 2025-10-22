@@ -1,5 +1,8 @@
 ﻿using Application.Abstractions.IPersistence.Repositories;
 using Application.Common.Results;
+using Application.Diary.Commands.DeleteDiary;
+using Application.Student.Repository;
+using Domain.Common;
 using Domain.Models.Diary;
 using FluentValidation;
 using MediatR;
@@ -10,14 +13,14 @@ public sealed class UpdateDiaryCommandHandler : IRequestHandler<UpdateDiaryComma
 {
     private readonly IDiaryRepository _diaryRepository;
     private readonly IValidator<UpdateDiaryCommand> _validator;
-    private readonly ICurrentUserService _currentUser; 
+    private readonly IStudentRepository _studentRepository;
 
 
-    public UpdateDiaryCommandHandler(IDiaryRepository diaryRepository, IValidator<UpdateDiaryCommand> validator, ICurrentUserService currentUser)
+    public UpdateDiaryCommandHandler(IDiaryRepository diaryRepository, IValidator<UpdateDiaryCommand> validator, IStudentRepository studentRepository)
     {
         _diaryRepository = diaryRepository;
         _validator = validator;
-        _currentUser = currentUser;
+        _studentRepository = studentRepository;
     }
 
     public async Task<OperationResult> Handle(UpdateDiaryCommand request, CancellationToken ct)
@@ -29,11 +32,15 @@ public sealed class UpdateDiaryCommandHandler : IRequestHandler<UpdateDiaryComma
             return OperationResult.Failure(Error.NotFound("Diary.NotFound","Dagboken hittades inte"));
         }
 
-        var studentId = _currentUser.UserId;
-
-        if (diaryEntity.StudentId != studentId)
+        var student = await _studentRepository.GetByExternalIdAsync(request.UserId, ct);
+        if (student == null)
         {
-            return OperationResult.Failure(Error.Validation("User.Forbidden","Dagboken hittades inte"));
+            return OperationResult.Failure(Error.Validation(ErrorCodes.General.Forbidden,"Användaren hittades inte "));
+        }
+
+        if (diaryEntity.StudentId != student.Id)
+        {
+            return OperationResult.Failure(Error.Validation(ErrorCodes.General.Forbidden, "Användaren har inte behörighet att uppdatera inlägget"));
         }
 
         var domainEntry = DiaryEntry.Rehydrate(
