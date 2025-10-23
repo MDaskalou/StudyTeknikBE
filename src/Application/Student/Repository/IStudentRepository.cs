@@ -20,6 +20,8 @@ namespace Application.Student.Repository
 
         // === WRITE (SKRIVA DATA) ===
         Task<OperationResult> AddAsync(User user, CancellationToken ct);
+        //Det är för min DevelopmentAuthenticationMiddleware ska fungera  
+        Task AddEntityAsync(UserEntity userEntity, CancellationToken ct);
         Task<OperationResult> UpdateAsync(User user, CancellationToken ct);
         Task<User?> GetTrackedDomainUserByIdAsync(Guid id, CancellationToken ct);
         Task<OperationResult> DeleteAsync(Guid id, CancellationToken ct);

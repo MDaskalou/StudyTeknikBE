@@ -28,6 +28,9 @@ namespace Infrastructure.Persistence.Repositories
             };
             
             await _context.Decks.AddAsync(deckEntity, ct);
+            
+            await _context.SaveChangesAsync(ct);
         }
+        
     }
 }

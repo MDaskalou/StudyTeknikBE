@@ -83,6 +83,13 @@ namespace Infrastructure.Persistence.Repositories
             }
         }
 
+        public async Task AddEntityAsync(UserEntity userEntity, CancellationToken ct)
+        {
+            await _db.Users.AddAsync(userEntity, ct);
+            // Spara OMEDELBART för att slutföra provisioneringen.
+            await _db.SaveChangesAsync(ct); 
+        }
+
         public async Task<OperationResult> UpdateAsync(User user, CancellationToken ct)
         {
             var userEntity = user.ToEntity();
