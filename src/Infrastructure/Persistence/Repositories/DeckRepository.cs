@@ -133,6 +133,19 @@ namespace Infrastructure.Persistence.Repositories
                 
             }
         }
+
+        public async Task DeleteAsync(Guid deckId, CancellationToken ct)
+        {
+            var deckEntity = await _context.Decks
+                .FindAsync(new object[] {deckId}, ct);
+
+            if (deckEntity != null)
+            {
+                _context.Decks.Remove(deckEntity);
+                
+            }
+            await _context.SaveChangesAsync(ct);
+        }
         
     }
 }
