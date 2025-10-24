@@ -1,6 +1,7 @@
 ﻿using Application.Common.Results;
 using Application.Decks.Commands.CreateDeck;
 using Application.Decks.Queries.GetAllDecks;
+using Application.Decks.Queries.GetDeckById;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -55,12 +56,26 @@ namespace StudyTeknik.Controllers
             }
             return Ok(queryResult.Value);
         }
-        [HttpGet("GetDeckById/{id}")]
-        public async Task<IActionResult> GetDeckById(Guid id, CancellationToken ct)
+        
+        [HttpGet("GetDeckById/{Id}")]
+        public async Task<IActionResult> GetDeckById(Guid Id, CancellationToken ct)
         {
-            // TODO: Implementera GetDeckByIdQuery och Handler härnäst
-            await Task.Delay(10, ct); // Dummy await
-            return NotFound(new Error("NotImplemented", $"GetDeckById {id} är inte implementerad än.", ErrorType.NotFound));
+            var query = new GetDeckByIdQuery(Id);
+            
+            var queryResult =  await _mediator.Send(query, ct);
+
+            if (queryResult.IsFailure)
+            {
+                return queryResult.Error.Type switch 
+                {
+                    ErrorType.Validation => BadRequest(queryResult.Error),
+                    ErrorType.NotFound => NotFound(queryResult.Error),
+                    ErrorType.Forbidden => Forbid(),
+                    ErrorType.Conflict => Conflict(queryResult.Error),
+                    _ => BadRequest(queryResult.Error) 
+                };
+            }
+            return Ok(queryResult.Value);
         }
     }
     

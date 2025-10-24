@@ -4,6 +4,8 @@ using Domain.Entities;
 using Domain.Models.Flashcards;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using Application.Common.Results;
+using Domain.Common;
 
 namespace Infrastructure.Persistence.Repositories
 {
@@ -60,19 +62,37 @@ namespace Infrastructure.Persistence.Repositories
                         wrapper.Entity.CourseName,
                         wrapper.Entity.SubjectName,
                         wrapper.Entity.UserId
-                        // Notera: Vi laddar INTE hela User eller FlashCards-listan här
-                        // eftersom domänmodellen ska vara fokuserad.
                     );
                     
-                    // Om du behöver CardCount (t.ex. för mappning till DTO) 
-                    // kan du behöva lägga till det i Load eller mappa separat.
-                    // För nu antar vi att DeckMapper kan hantera det.
                     
                     return deck;
                 })
                 .ToList();
 
             return domainDecks;
+        }
+
+        public async Task<Deck?> GetByIdAsync(Guid id, CancellationToken ct = default) 
+        {
+            var deckEntity = await _context.Decks
+                .AsNoTracking()
+                .FirstOrDefaultAsync(d => d.Id == id, ct);
+
+            if (deckEntity == null)
+            {
+                return null;
+            }
+            
+            var domainDeck = Deck.Load(
+                deckEntity.Id,
+                deckEntity.CreatedAtUtc,
+                deckEntity.UpdatedAtUtc,
+                deckEntity.Title,
+                deckEntity.CourseName,
+                deckEntity.SubjectName,
+                deckEntity.UserId
+            );
+                return domainDeck;
         }
         
     }

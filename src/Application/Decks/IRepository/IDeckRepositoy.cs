@@ -8,5 +8,7 @@ namespace Application.Decks.IRepository
         
         Task <List<Deck>> GetByUserIdAsync(Guid userId,CancellationToken ct = default);
         
+        Task<Deck?> GetByIdAsync(Guid id, CancellationToken ct = default);
+        
     }
 }
