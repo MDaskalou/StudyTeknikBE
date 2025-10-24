@@ -10,5 +10,9 @@ namespace Application.Decks.IRepository
         
         Task<Deck?> GetByIdAsync(Guid id, CancellationToken ct = default);
         
+        Task<Deck> GetByIdTrackedAsync(Guid deckId, CancellationToken ct);
+        
+        Task UpdateAsync(Deck deck, CancellationToken ct);
+        
     }
 }

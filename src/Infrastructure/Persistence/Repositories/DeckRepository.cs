@@ -94,6 +94,45 @@ namespace Infrastructure.Persistence.Repositories
             );
                 return domainDeck;
         }
+
+        public async Task<Deck?> GetByIdTrackedAsync(Guid deckId, CancellationToken ct = default)
+        {
+            var deckEntity = await _context.Decks
+                .FirstOrDefaultAsync(d => d.Id == deckId, ct);
+
+            if (deckEntity == null)
+            {
+                return null;
+            }
+            
+            var domainDeck = Deck.Load(
+                deckEntity.Id,
+                deckEntity.CreatedAtUtc,
+                deckEntity.UpdatedAtUtc,
+                deckEntity.Title,
+                deckEntity.CourseName,
+                deckEntity.SubjectName,
+                deckEntity.UserId
+            );
+                return domainDeck;
+            
+        }
+
+        public async Task UpdateAsync(Deck deck, CancellationToken ct)
+        {
+            var deckEnity = await _context.Decks
+                .FindAsync(new object[] {deck.Id}, ct);
+
+            if (deckEnity != null)
+            {
+                deckEnity.Title = deck.Title;
+                deckEnity.CourseName = deck.CourseName;
+                deckEnity.SubjectName = deck.SubjectName;
+                await _context.SaveChangesAsync(ct);
+
+                
+            }
+        }
         
     }
 }
