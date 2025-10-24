@@ -6,5 +6,7 @@ namespace Application.Decks.IRepository
     {
         Task AddAsync(Deck deck, CancellationToken ct);
         
+        Task <List<Deck>> GetByUserIdAsync(Guid userId,CancellationToken ct = default);
+        
     }
 }
