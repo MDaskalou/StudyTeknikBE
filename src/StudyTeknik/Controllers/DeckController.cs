@@ -1,5 +1,6 @@
 ﻿using Application.Common.Results;
 using Application.Decks.Commands.CreateDeck;
+using Application.Decks.Commands.UpdateDecks;
 using Application.Decks.Queries.GetAllDecks;
 using Application.Decks.Queries.GetDeckById;
 using MediatR;
@@ -76,6 +77,24 @@ namespace StudyTeknik.Controllers
                 };
             }
             return Ok(queryResult.Value);
+        }
+
+        [HttpPut("UpdateDeck/{Id}")]
+        public async Task<IActionResult> UpdateDeck([FromBody] UpdateDeckCommand command, CancellationToken ct)
+        {
+            var result = await _mediator.Send(command, ct);
+            if (result.IsFailure)
+            {
+                return result.Error.Type switch
+                {
+                    ErrorType.Validation => BadRequest(result.Error),
+                    ErrorType.NotFound => NotFound(result.Error),
+                    ErrorType.Forbidden => Forbid(),
+                    ErrorType.Conflict => Conflict(result.Error),
+                    _ => BadRequest(result.Error) 
+                };
+            }
+            return NoContent();
         }
     }
     
