@@ -14,5 +14,7 @@ namespace Application.Decks.IRepository
         
         Task UpdateAsync(Deck deck, CancellationToken ct);
         
+        Task DeleteAsync(Guid userId, CancellationToken ct);
+        
     }
 }
