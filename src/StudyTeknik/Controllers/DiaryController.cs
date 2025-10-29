@@ -29,16 +29,9 @@ namespace StudyTeknik.Controllers
         [HttpPost("CreateDiary")]
         public async Task<IActionResult> CreateDiaryEntry([FromBody] CreateDiaryRequestDto requestDto, CancellationToken ct)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var name = User.FindFirstValue(ClaimTypes.Name);
-            var email = User.FindFirstValue(ClaimTypes.Email);
-
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized(new { error = "Kunde inte identifiera användaren från token." });
-            }
-            
-            var command = new CreateDiaryCommand(userId, name, email, requestDto.EntryDate, requestDto.Text);
+    
+            // Skapa kommandot BARA med datan från request-body.
+            var command = new CreateDiaryCommand(requestDto.EntryDate, requestDto.Text); 
             var result = await _mediator.Send(command, ct);
 
             if (result.IsFailure)
@@ -50,7 +43,8 @@ namespace StudyTeknik.Controllers
                 };
             }
 
-            return Created($"/api/diaries/{result.Value!.Id}", result.Value);}
+            return Created($"/api/diaries/{result.Value!.Id}", result.Value);
+        }
 
         [HttpPut("UpdateDiary/{Id:guid}")]
         public async Task<IActionResult> UpdateDiary(Guid id, [FromBody] UpdateDiaryDto dto, CancellationToken ct)

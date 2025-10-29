@@ -1,34 +1,43 @@
-﻿using System.Security.Claims;
-using Application.Abstractions;
+﻿using Application.Abstractions;
+using System;
+using System.Security.Claims;
 using Application.Abstractions.IPersistence.Repositories;
 using Microsoft.AspNetCore.Http;
 
 namespace StudyTeknik.Services
 {
+    // Denna klass implementerar ALLA delar av interfacet
     public sealed class CurrentUserService : ICurrentUserService
     {
         private readonly IHttpContextAccessor _http;
-        public CurrentUserService(IHttpContextAccessor http) => _http = http;
 
-        private ClaimsPrincipal User => _http.HttpContext?.User ?? new ClaimsPrincipal();
+        // --- 1. Implementation av "Hållare" (för UserId) ---
+        
+        // INTERNT ID (startar som null, sätts av middleware)
+        public Guid? UserId { get; private set; }
 
-        public bool IsAuthenticated => User.Identity?.IsAuthenticated == true;
-
-        public Guid? UserId
+        // Metod som middleware anropar
+        public void SetUserId(Guid id)
         {
-            get
+            if (UserId is null)
             {
-                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                         ?? User.FindFirst("sub")?.Value;
-                return Guid.TryParse(id, out var g) ? g : null;
+                UserId = id;
             }
         }
+        
+        // --- 2. Implementation av "Läsare" (för Claims) ---
 
+        // Konstruktor som tar emot HttpContext
+        public CurrentUserService(IHttpContextAccessor http) => _http = http;
+
+        // Privat hjälp-property
+        private ClaimsPrincipal User => _http.HttpContext?.User ?? new ClaimsPrincipal();
+
+        // EXTERNT ID (läses från token)
+        public string? ExternalId => User.FindFirst("sub")?.Value;
+
+        // ROLL (läses från token)
         public string? RoleName =>
             User.FindFirst(ClaimTypes.Role)?.Value ?? User.FindFirst("role")?.Value;
-
-        public bool IsInRole(string roleName) =>
-            User.IsInRole(roleName) ||
-            string.Equals(RoleName, roleName, StringComparison.OrdinalIgnoreCase);
     }
 }

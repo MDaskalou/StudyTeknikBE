@@ -163,5 +163,10 @@ namespace Infrastructure.Persistence.Repositories
             
             return userEntity.ToModel();
         }
+        public async Task<UserEntity?> GetStudentByExternalIdAsync(string externalId, CancellationToken ct)
+        {
+            return await _db.Users
+                .FirstOrDefaultAsync(u => u.ExternalSubject == externalId, ct);
+        }
     }
 }

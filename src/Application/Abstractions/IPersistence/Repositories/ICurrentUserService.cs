@@ -10,8 +10,9 @@
     public interface ICurrentUserService
     {
         Guid? UserId { get; }
+        string? ExternalId { get; }
         string? RoleName { get; }
-        bool IsAuthenticated { get; }
-        bool IsInRole(string roleName);
+        void SetUserId(Guid id);
+        
     }
 }

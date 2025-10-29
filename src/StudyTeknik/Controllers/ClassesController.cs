@@ -16,12 +16,12 @@ namespace StudyTeknik.Controllers
         public ClassesController(ICurrentUserService current, IClassRepository classes)
             => (_current, _classes) = (current, classes);
 
-        [HttpGet("mine")]
-        public async Task<IActionResult> GetMine(CancellationToken ct)
-        {
-            if (!_current.UserId.HasValue) return Unauthorized();
-            var list = await _classes.GetByTeacherAsync(_current.UserId.Value, ct);
-            return Ok(list);
-        }
+        //[HttpGet("mine")]
+        //public async Task<IActionResult> GetMine(CancellationToken ct)
+        //{
+           // if (!_current.UserId.HasValue) return Unauthorized();
+           // var list = await _classes.GetByTeacherAsync(_current.UserId.Value, ct);
+           // return Ok(list);
+        //}
     }
 }
