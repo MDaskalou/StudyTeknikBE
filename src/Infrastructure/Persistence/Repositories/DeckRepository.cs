@@ -126,6 +126,8 @@ namespace Infrastructure.Persistence.Repositories
             return domainDeck;
         }
 
+        // Fil: Infrastructure/Persistence/Repositories/DeckRepository.cs
+
         public async Task UpdateAsync(Deck deck, CancellationToken ct)
         {
            var deckEntity = await _context.Decks
@@ -134,28 +136,39 @@ namespace Infrastructure.Persistence.Repositories
 
            if (deckEntity != null)
            {
+               // Denna logik är korrekt
                deckEntity.Title = deck.Title;
                deckEntity.CourseName = deck.CourseName;
                deckEntity.SubjectName = deck.SubjectName;
                deckEntity.UpdatedAtUtc = DateTime.UtcNow;
 
-
+               // Denna logik är korrekt
                var cardsToRemove = deckEntity.FlashCards
                    .Where(fe => !deck.FlashCards.Any(domainCard => domainCard.Id == fe.Id))
                    .ToList();
                _context.FlashCards.RemoveRange(cardsToRemove);
 
+               // Loop-logiken
                foreach (var domianCard in deck.FlashCards)
                {
                    var existingCard = deckEntity.FlashCards.FirstOrDefault(fe => fe.Id == domianCard.Id);
 
                    if (existingCard == null)
                    {
-                       // Nytt kort -> Lägg till
-                       deckEntity.FlashCards.Add(domianCard.ToEntity());                   }
+                       
+                       var newCardEntity = domianCard.ToEntity();
+                       
+                       // Se till att relationen är satt (mappern borde göra detta,
+                       // men som en säkerhetsåtgärd):
+                       newCardEntity.DeckId = deckEntity.Id; 
+                       
+                       _context.FlashCards.Add(newCardEntity); 
+                       // -------------------------
+                   }
                    else
                    {
-                       existingCard.UpdatedAtUtc = domianCard.UpdatedAtUtc; // FIX 5: Använd domänvärden
+                       // Denna logik är korrekt
+                       existingCard.UpdatedAtUtc = domianCard.UpdatedAtUtc; 
                        existingCard.FrontText = domianCard.FrontText;
                        existingCard.BackText = domianCard.BackText;
                        existingCard.NextReviewAtUtc = domianCard.NextReviewAtUtc;
@@ -166,7 +179,6 @@ namespace Infrastructure.Persistence.Repositories
 
                await _context.SaveChangesAsync(ct);
            }
-
         }
 
         public async Task DeleteAsync(Guid deckId, CancellationToken ct)
