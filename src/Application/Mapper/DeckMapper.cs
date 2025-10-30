@@ -1,21 +1,45 @@
 ﻿using Domain.Models.Flashcards;
 using Application.Decks.Dtos;
+using Domain.Entities;
 
 namespace Application.Mapper
 {
     public static class DeckMapper
     {
-        public static DeckDto ToDto(Deck Deck)
+        // === Din befintliga metod (med en liten fix) ===
+        public static DeckDto ToDto(Deck deck) // <-- Bytte 'Deck' till 'deck'
         {
             return new DeckDto
             {
-                Id = Deck.Id,
-                Title = Deck.Title,
-                CourseName = Deck.CourseName,
-                SubjectName = Deck.SubjectName,
-                CreatedUtc = Deck.CreatedAtUtc,
-                CardCount = Deck.FlashCards.Count
+                Id = deck.Id,
+                Title = deck.Title,
+                CourseName = deck.CourseName,
+                SubjectName = deck.SubjectName,
+                CreatedUtc = deck.CreatedAtUtc,
+                CardCount = deck.FlashCards.Count
             };
+        }
+
+        public static DeckEntity ToEntity(this Deck domain)
+        {
+            var entity = new DeckEntity
+            {
+                Id = domain.Id,
+                CreatedAtUtc = domain.CreatedAtUtc,
+                UpdatedAtUtc = domain.UpdatedAtUtc,
+                Title = domain.Title,
+                CourseName = domain.CourseName,
+                SubjectName = domain.SubjectName,
+                UserId = domain.UserId,
+                FlashCards = new List<FlashCardEntity>()
+            };
+
+            foreach (var cardDomain in domain.FlashCards)
+            {
+                entity.FlashCards.Add(cardDomain.ToEntity());
+            }
+
+            return entity;
         }
     }
 }
