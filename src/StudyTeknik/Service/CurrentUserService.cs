@@ -1,34 +1,39 @@
-﻿using System.Security.Claims;
-using Application.Abstractions;
+﻿using Application.Abstractions;
+using System;
+using System.Security.Claims;
 using Application.Abstractions.IPersistence.Repositories;
+using Microsoft.AspNetCore.Http;
 
 namespace StudyTeknik.Service
 {
-    // TODO: Läser claims från HttpContext.User (registreras som Scoped)
-
     public sealed class CurrentUserService : ICurrentUserService
     {
         private readonly IHttpContextAccessor _http;
+
+        
+        // Vårt INTERNA Guid-ID. Startar som null.
+        public Guid? UserId { get; private set; }
+
+        // Metoden som UserProvisioningMiddleware anropar
+        public void SetUserId(Guid id)
+        {
+            if (UserId is null)
+            {
+                UserId = id;
+            }
+        }
+        
+        // --- 2. Implementation av "Läsare" ---
+
         public CurrentUserService(IHttpContextAccessor http) => _http = http;
 
         private ClaimsPrincipal User => _http.HttpContext?.User ?? new ClaimsPrincipal();
 
-        public bool IsAuthenticated => User.Identity?.IsAuthenticated == true;
+        // Läser det EXTERNA ID:t från "sub"-claimet
+        public string? ExternalId => User.FindFirst("sub")?.Value;
 
-        public Guid? UserId
-        {
-            get
-            {
-                var id = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                         ?? User.FindFirst("sub")?.Value;
-                return Guid.TryParse(id, out var g) ? g : null;
-            }
-        }
-
+        // Läser Roll-namnet
         public string? RoleName =>
             User.FindFirst(ClaimTypes.Role)?.Value ?? User.FindFirst("role")?.Value;
-
-        public bool IsInRole(string roleName) =>
-            User.IsInRole(roleName) || string.Equals(RoleName, roleName, StringComparison.OrdinalIgnoreCase);
     }
 }

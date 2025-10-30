@@ -33,8 +33,7 @@ public class Program
         var builder = WebApplication.CreateBuilder(args);
         
         // --- NY KOD (Villkorlig autentisering) ---
-        if (!builder.Environment.IsDevelopment())
-        {
+        
             // JWT-konfiguration
             var authority = builder.Configuration["Jwt:Authority"];
             var audience  = builder.Configuration["Jwt:Audience"];
@@ -101,7 +100,7 @@ public class Program
                         options.TokenValidationParameters.IssuerSigningKeys = signingKeys;
                     }
                 });
-        }
+        
         
         // Services (inga ändringar här)
         builder.Services.AddControllers().AddNewtonsoftJson();
@@ -160,23 +159,20 @@ public class Program
         app.UseHttpsRedirection();
         app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
         
-        // --- NY KOD (Villkorlig pipeline) ---
-        if (app.Environment.IsDevelopment())
-        {
-            // I DEVELOPMENT: Kör vår fejkade middleware FÖRE UseAuthorization
-            app.UseDevelopmentAuthentication();
+       // if (app.Environment.IsDevelopment())
+       // {
+       //     app.UseDevelopmentAuthentication();
             
-        }
-        else
-        {
-            // I PRODUCTION: Kör den riktiga autentiseringen
-            app.UseAuthentication(); 
-        }
-
-        app.UseAuthorization(); // Körs alltid, använder antingen fejkad eller riktig användare
+        //}
+        //else
+        //{
+            //app.UseAuthentication(); 
+       // }
+       app.UseAuthentication(); 
+       app.UseMiddleware<UserProvisioningMiddleware>();
+        app.UseAuthorization(); 
         // --- SLUT PÅ NY KOD ---
         
-        app.UseMiddleware<UserProvisioningMiddleware>();
         app.UseMiddleware<ForbiddenLoggingMiddleware>();
         app.MapControllers();
 

@@ -1,13 +1,15 @@
-﻿using Application.Abstractions.IPersistence.Repositories;
+﻿using Application.Abstractions;
+using Application.Abstractions.IPersistence.Repositories; // <-- VIKTIG
 using Application.Common.Results;
 using Application.Diary.Dtos;
 using Application.Student.Repository;
-using Domain.Abstractions.Enum;
 using Domain.Common;
 using Domain.Entities;
 using Domain.Models.Diary;
 using FluentValidation;
 using MediatR;
+// TA BORT: using Microsoft.AspNetCore.Http;
+// TA BORT: using System.Security.Claims;
 
 namespace Application.Diary.Commands.CreateDiary
 {
@@ -17,65 +19,69 @@ namespace Application.Diary.Commands.CreateDiary
         IDiaryRepository _diaryRepository;
         IValidator<CreateDiaryCommand> _validator;
         IStudentRepository _studentRepository;
-
+        ICurrentUserService _currentUserService; // <-- SKA ANVÄNDA DENNA
 
         public CreateDiaryCommandHandler(
             IDiaryRepository diaryRepository,
             IValidator<CreateDiaryCommand> validator,
-            IStudentRepository studentRepository)
+            IStudentRepository studentRepository,
+            ICurrentUserService currentUserService) // <-- Injicera den
         {
             _diaryRepository = diaryRepository;
             _validator = validator;
             _studentRepository = studentRepository;
+            _currentUserService = currentUserService;
         }
 
         public async Task<OperationResult<CreateDiaryEntryDto>> Handle(CreateDiaryCommand request, CancellationToken ct)
         {
-            // STEG 1: Validera inkommande data
             var validationResult = await _validator.ValidateAsync(request, ct);
             if (!validationResult.IsValid)
             {
                 var errorMessages = string.Join(", ", validationResult.Errors.Select(e => e.ErrorMessage));
                 return OperationResult<CreateDiaryEntryDto>.Failure(Error.Validation(ErrorCodes.General.Validation, errorMessages));
             }
+
+            // STEG 2: Hämta INTERNT ID från vår service (som middlewaren har satt)
+            var studentGuid = _currentUserService.UserId; // <-- Läs från servicen
+
+            if (!studentGuid.HasValue || studentGuid.Value == Guid.Empty)
+            {
+                // Om vi hamnar här har middlewaren misslyckats
+                return OperationResult<CreateDiaryEntryDto>.Failure(
+                    Error.Validation(ErrorCodes.General.Validation, "Kunde inte identifiera den inloggade användaren."));
+            }
             
-            // STEG 2: Hämta den lokala användaren baserat på Logto-ID:t
-            // Vi kan lita på att användaren finns, eftersom vår middleware redan har kört.
-            // Notera att vi nu hämtar den rika domänmodellen 'User', inte en 'UserEntity'.
-            var student = await _studentRepository.GetDomainUserByExternalIdAsync(request.UserId, ct);
+            // STEG 3: Hämta studenten
+            // (Vi använder GetTrackedByIdAsync eftersom vi vet det INTERNA Guid-ID:t)
+            UserEntity? student = await _studentRepository.GetTrackedByIdAsync(studentGuid.Value, ct);
             
             if (student is null)
             {
-                // Detta borde teoretiskt aldrig hända, men är en bra säkerhetskontroll.
                 return OperationResult<CreateDiaryEntryDto>.Failure(Error.NotFound("User.NotFound", "Användaren kunde inte hittas i systemet."));
             }
 
-            // STEG 3: Kontrollera affärsregler (t.ex. ett inlägg per dag)
+            // STEG 4: Kontrollera för 409 CONFLICT (vårt ursprungliga fel)
             if (await _diaryRepository.EntryExistsForDateAsync(student.Id, request.EntryDate, ct))
             {
                 return OperationResult<CreateDiaryEntryDto>.Failure(Error.Conflict(ErrorCodes.DiaryError.DailyLimitExceeded, "Endast ett dagboksinlägg per dag är tillåtet"));
             }
 
-            // STEG 4: Skapa och spara den nya dagboksanteckningen
+            // STEG 5: Skapa och spara
             var diaryEntry = new DiaryEntry(
-                student.Id, // Använd det stabila, interna Guid-ID:t
+                student.Id,
                 request.EntryDate,
                 request.Text);
                 
             await _diaryRepository.AddAsync(diaryEntry, ct);
             
-            // STEG 5: Returnera ett framgångsrikt resultat
+            // STEG 6: Returnera
             var responseDto = new CreateDiaryEntryDto(
                 diaryEntry.Id, 
                 diaryEntry.StudentId,
                 diaryEntry.EntryDate);
             
             return OperationResult<CreateDiaryEntryDto>.Success(responseDto);
-        }
-
-        public async Task<UserEntity> GetByExternalIdAsync(string externalId, CancellationToken ct)
-        {
-            return await _studentRepository.GetByExternalIdAsync(externalId, ct);
         }
     }
 }

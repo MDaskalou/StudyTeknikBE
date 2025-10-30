@@ -27,8 +27,8 @@ namespace Application.Student.Repository
         Task<OperationResult> DeleteAsync(Guid id, CancellationToken ct);
         Task<User?> GetDomainUserByExternalIdAsync(string externalId, CancellationToken ct);
         
-        // ===Externa Subject===
-        
+        Task<UserEntity?> GetStudentByExternalIdAsync(string externalId, CancellationToken ct);
         Task<UserEntity?> GetByExternalIdAsync(string externalId, CancellationToken ct);
+        
     }
 }
