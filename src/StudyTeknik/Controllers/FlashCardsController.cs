@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Application.FlashCards.Commands; // För ditt command
 using Application.FlashCards.Dtos;
+using Application.FlashCards.Queries.GetAllFlashCardsForDeckQuery;
 using Microsoft.AspNetCore.Authorization;
 
 namespace StudyTeknik.Controllers
@@ -37,6 +38,22 @@ namespace StudyTeknik.Controllers
                 return Ok(result.Value);
             }
             return BadRequest(result.Error);
+        }
+        
+        [HttpGet] 
+        public async Task<IActionResult> GetAllFlashCardsForDeck(Guid deckId, CancellationToken ct)
+        {
+            // 1. Skapa din nya query
+            var query = new GetAllFlashCardsForDeckQuery(deckId);
+        
+            var result = await _mediator.Send(query, ct);
+
+            if (result.IsSuccess)
+            {
+                return Ok(result.Value); 
+            }
+            
+            return BadRequest(result.Error); 
         }
         
 

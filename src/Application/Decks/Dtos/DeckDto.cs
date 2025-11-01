@@ -1,4 +1,6 @@
-﻿namespace Application.Decks.Dtos
+﻿using Application.FlashCards.Dtos;
+
+namespace Application.Decks.Dtos
 {
     public sealed record DeckDto
     {
@@ -9,6 +11,7 @@
         public DateTime CreatedUtc{get;set;}
         public int CardCount {get;set;}
         
+        public List<FlashCardDto> FlashCards{get;set;}
 
     }
 }
