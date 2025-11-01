@@ -9,7 +9,7 @@ namespace Domain.Entities
         public DateTime UpdatedAtUtc { get; set; }
         
         public string FrontText { get; set; }
-        public string BackText { get; }
+        public string BackText { get; set; }
         
         
         public DateTime NextReviewAtUtc { get; set; }

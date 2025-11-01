@@ -82,9 +82,10 @@ namespace Domain.Models.Flashcards // Ändrade namespace till Entities
             string title,
             string courseName,
             string subjectName,
-            Guid userId)
+            Guid userId,
+            List<FlashCard> flashCards)
         {
-            return new Deck
+            var deck = new Deck
             {
                 Id = id,
                 CreatedAtUtc = createdAtUtc,
@@ -94,6 +95,8 @@ namespace Domain.Models.Flashcards // Ändrade namespace till Entities
                 SubjectName = subjectName,
                 UserId = userId
             };
+            deck._flashCards.AddRange(flashCards);
+            return deck;
         }
         
         private void Touch() => UpdatedAtUtc = DateTime.UtcNow;
