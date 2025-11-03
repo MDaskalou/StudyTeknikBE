@@ -16,7 +16,12 @@ namespace Application.Mapper
                 CourseName = deck.CourseName,
                 SubjectName = deck.SubjectName,
                 CreatedUtc = deck.CreatedAtUtc,
-                CardCount = deck.FlashCards.Count
+                CardCount = deck.FlashCards.Count,
+                
+                FlashCards = deck.FlashCards
+                    .Select(fc => fc.ToDto())
+                    .ToList()
+                
             };
         }
 
