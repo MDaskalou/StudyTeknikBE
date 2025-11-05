@@ -50,6 +50,7 @@ namespace Domain.Models.Flashcards
             Touch();
         }
 
+        // FIX: Hela Review-metoden är omskriven med korrekt SRS-logik.
         public void Review(int lapses)
         {
             if (lapses == 0)

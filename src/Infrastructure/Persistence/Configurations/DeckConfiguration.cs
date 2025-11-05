@@ -29,7 +29,7 @@ namespace Infrastructure.Persistence.Configurations
             builder.HasMany(deck =>deck.FlashCards)
                 .WithOne(fcard => fcard.Deck)
                 .HasForeignKey(fcard => fcard.DeckId)
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
