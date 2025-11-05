@@ -8,7 +8,7 @@ using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 
-namespace Application.FlashCards.Commands
+namespace Application.FlashCards.Commands.AddFlashcardToDeckCommand.AddFlashcardToDeckCommand
 {
     public class AddFlashcardToDeckCommandHandler : IRequestHandler<AddFlashcardToDeckCommand, OperationResult<FlashCardDto>>
     {

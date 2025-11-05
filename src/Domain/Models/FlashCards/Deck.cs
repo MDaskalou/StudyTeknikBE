@@ -74,6 +74,19 @@ namespace Domain.Models.Flashcards // Ändrade namespace till Entities
                 Touch();
             }
         }
+        public void UpdateFlashCard(Guid flashCardId, string frontText, string backText)
+        {
+            var flashCard = _flashCards.FirstOrDefault(fc => fc.Id == flashCardId);
+
+            if (flashCard == null)
+            {
+                throw new InvalidOperationException($"Kortet med ID {flashCardId} kunde inte hittas i denna kortlek.");
+            }
+
+            flashCard.UpdateText(frontText, backText);
+        
+            Touch();
+        }
 
         public static Deck Load(
             Guid id,

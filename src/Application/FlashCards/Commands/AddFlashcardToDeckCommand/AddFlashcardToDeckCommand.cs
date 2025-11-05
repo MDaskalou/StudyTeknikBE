@@ -2,7 +2,7 @@
 using Application.FlashCards.Dtos;
 using MediatR;
 
-namespace Application.FlashCards.Commands
+namespace Application.FlashCards.Commands.AddFlashcardToDeckCommand.AddFlashcardToDeckCommand
 {
     public record AddFlashcardToDeckCommand(Guid DeckId,string FrontText, string BackText) 
         :IRequest<OperationResult<FlashCardDto>>;
