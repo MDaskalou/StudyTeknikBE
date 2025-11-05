@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace Application.AI.Commands
+namespace Application.AI.Commands.Rewrite
 {
     public class RewriteTextCommandValidator :AbstractValidator<RewriteTextCommand>
     {

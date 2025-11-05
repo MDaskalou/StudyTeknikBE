@@ -1,24 +1,21 @@
 ﻿#nullable enable
-using Application.Common.Results;
-using Domain.Common; 
-using FluentValidation;
-using MediatR;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Application.Abstractions.IPersistence;
 using Application.AI.Dtos;
+using Application.Common.Results;
+using Domain.Common;
+using FluentValidation;
+using MediatR;
 
-namespace Application.AI.Commands.RewriteText
+namespace Application.AI.Commands.Rewrite
 {
     public sealed class RewriteTextCommandHandler
         : IRequestHandler<RewriteTextCommand, OperationResult<RewriteResponseDto>>
     {
-        private readonly IAIService _aiService;
+        private readonly IAiService _aiService;
         private readonly IValidator<RewriteTextCommand> _validator;
 
         public RewriteTextCommandHandler(
-            IAIService aiService,
+            IAiService aiService,
             IValidator<RewriteTextCommand> validator)
         {
             _aiService = aiService;
