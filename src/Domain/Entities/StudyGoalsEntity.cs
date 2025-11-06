@@ -8,7 +8,7 @@
         
         public string GoalDescription { get; set; }
         public bool IsCompleted { get; set; }
-        DateTime CreatedAtUtc { get; set; }
+        public DateTime CreatedAtUtc { get; set; }
         
     }
 }
