@@ -42,7 +42,7 @@ namespace StudyTeknik.Controllers
             
         }
 
-        [HttpGet("GetAllDecks")]
+        [HttpGet]
         public async Task<IActionResult> GetAllDecks(CancellationToken ct)
         {
             var query = new GetAllDecksQuery();
@@ -83,27 +83,10 @@ namespace StudyTeknik.Controllers
             return Ok(queryResult.Value);
         }
 
-
-        [HttpPut("{deckId:guid}")]
-        public async Task<IActionResult> UpdateDeck(
-            // ========================================================================
-            //  HÄR ÄR FIXEN: Lägg till [FromRoute]
-            // ========================================================================
-            [FromRoute] Guid deckId, 
-            [FromBody] UpdateDeckRequest request, 
-            CancellationToken ct)
+        [HttpPut("UpdateDeck/{Id}")]
+        public async Task<IActionResult> UpdateDeck([FromBody] UpdateDeckCommand command, CancellationToken ct)
         {
-            // Bygg ditt command HÄR istället
-            var command = new UpdateDeckCommand(
-                 
-                request.Title,
-                request.CourseName,
-                request.SubjectName,
-                deckId
-            );
-
             var result = await _mediator.Send(command, ct);
-    
             if (result.IsFailure)
             {
                 return result.Error.Type switch
@@ -116,6 +99,29 @@ namespace StudyTeknik.Controllers
                 };
             }
             return NoContent();
+        }
+
+        [HttpPatch("UpdateDeckDetails/{id}")]
+        public async Task<IActionResult> PatchDeck(Guid id, [FromBody] JsonPatchDocument<UpdateDetailsDeckDto>
+            patchDoc, CancellationToken ct)
+        {
+            var command = new UpdateDetailsDeckCommand(id, patchDoc);
+            var result = await _mediator.Send(command, ct);
+            
+            if(result.IsFailure)
+            {
+                return result.Error.Type switch
+                {
+                    ErrorType.Validation => BadRequest(result.Error),
+                    ErrorType.NotFound => NotFound(result.Error),
+                    ErrorType.Forbidden => Forbid(),
+                    ErrorType.Conflict => Conflict(result.Error),
+                    _ => BadRequest(result.Error) 
+                };
+            }
+            
+                return NoContent();
+            
         }
         
         [HttpDelete("DeleteDeck/{Id}")]
@@ -137,5 +143,5 @@ namespace StudyTeknik.Controllers
             return NoContent();
         }
     }
-    public record UpdateDeckRequest( string Title, string CourseName, string SubjectName);
+    
 }

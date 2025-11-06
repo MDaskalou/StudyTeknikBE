@@ -2,7 +2,7 @@
 using Application.Common.Results;
 using MediatR;
 
-namespace Application.AI.Commands.Rewrite
+namespace Application.AI.Commands
 {
     public sealed record RewriteTextCommand(string Text): IRequest<OperationResult<RewriteResponseDto>>;
 }

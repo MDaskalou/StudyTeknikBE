@@ -23,7 +23,6 @@ using Infrastructure.Persistence.Repositories;
 using System.IdentityModel.Tokens.Jwt;
 using Application.Abstractions.IPersistence;
 using Application.Decks.IRepository;
-using Infrastructure.Service;
 
 namespace StudyTeknik;
 
@@ -117,7 +116,7 @@ public class Program
         builder.Services.AddScoped<IDeckRepository, DeckRepository>();
         
         //AIService (inga ändringar här)
-        builder.Services.AddScoped<IAiService, AiService>();
+        builder.Services.AddScoped<IAIService, AIService>();
 
         // AuthZ (inga ändringar här)
         builder.Services.AddAuthorization(options =>
