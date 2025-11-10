@@ -28,22 +28,20 @@ jobs:
         with:
           dotnet-version: '8.x' # Hålls automatiskt uppdaterad till senaste 8.x
 
-      # Återställer alla NuGet-paket
+      # Återställer alla NuGet-paket för specifik solution
       - name: Återställ dependencies (dotnet restore)
-        run: dotnet restore
-        # OBS: Om din .sln-fil (solution) inte ligger i roten, 
-        # behöver du ange sökvägen, t.ex:
-        # run: dotnet restore ./MinMapp/MinSolution.sln
+        run: dotnet restore ./src/StudyTeknik.sln
+        # OBS: Sökvägen är nu specifik!
 
-      # Bygger projektet (eller hela solution-filen)
+      # Bygger den specifika solution-filen
       - name: Bygg projektet (dotnet build)
-        run: dotnet build --no-restore
+        run: dotnet build ./src/StudyTeknik.sln --no-restore
         # Vi lägger till '--no-restore' för att det är snabbare,
         # eftersom vi redan har kört 'restore' i steget innan.
 
-      # Kör alla tester som 'build' hittade
+      # Kör alla tester som tillhör den specifika solution-filen
       - name: Kör tester (dotnet test)
-        run: dotnet test --no-build
+        run: dotnet test ./src/StudyTeknik.sln --no-build
         # Vi lägger till '--no-build' eftersom vi redan har byggt.
         # Om testerna misslyckas, kommer detta steg att "misslyckas"
         # och 'job.status' blir 'failure'
