@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Persistence.Configurations
 {
-    public class StudyPlanTaskConfiguration : IEntityTypeConfiguration<StudyPlanTask>
+    public class StudyPlanTaskConfiguration : IEntityTypeConfiguration<StudyPlanTasksEntity>
     {
-        public void Configure(EntityTypeBuilder<StudyPlanTask> builder)
+        public void Configure(EntityTypeBuilder<StudyPlanTasksEntity> builder)
         {
             builder.HasKey(sg => sg.Id);
             
-            builder.Property(sg => sg.TaskDescription)
+            builder.Property(sg => sg.Description)
                 .IsRequired()
                 .HasMaxLength(1000);
 

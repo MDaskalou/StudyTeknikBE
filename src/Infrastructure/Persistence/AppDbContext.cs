@@ -26,8 +26,8 @@ namespace Infrastructure.Persistence
         public DbSet<FlashCardEntity> FlashCards => Set<FlashCardEntity>();
         public DbSet<SubjectEntity> Subjects => Set<SubjectEntity>();
         public DbSet<StudyGoalsEntity> StudyGoals => Set<StudyGoalsEntity>();
-        public DbSet<StudyPlanTask> StudyPlanTasks => Set<StudyPlanTask>();
-        public DbSet<StudySession> StudySessions => Set<StudySession>();
+        public DbSet<StudyPlanTasksEntity> StudyPlanTasks => Set<StudyPlanTasksEntity>();
+        public DbSet<StudySessionsEntity> StudySessions => Set<StudySessionsEntity>();
         
         public AppDbContext (DbContextOptions<AppDbContext> options) : base(options){}
 

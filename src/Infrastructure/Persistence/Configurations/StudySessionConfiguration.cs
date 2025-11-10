@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.Persistence.Configurations
 {
-    public class StudySessionConfiguration : IEntityTypeConfiguration<StudySession>
+    public class StudySessionConfiguration : IEntityTypeConfiguration<StudySessionsEntity>
     {
-        public void Configure(EntityTypeBuilder<StudySession> builder)
+        public void Configure(EntityTypeBuilder<StudySessionsEntity> builder)
         {
             builder.HasKey(s => s.Id);
 
