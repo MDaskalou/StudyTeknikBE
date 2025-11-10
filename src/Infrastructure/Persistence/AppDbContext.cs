@@ -29,6 +29,8 @@ namespace Infrastructure.Persistence
         public DbSet<StudyPlanTasksEntity> StudyPlanTasks => Set<StudyPlanTasksEntity>();
         public DbSet<StudySessionsEntity> StudySessions => Set<StudySessionsEntity>();
         
+        //testar
+        
         public AppDbContext (DbContextOptions<AppDbContext> options) : base(options){}
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
