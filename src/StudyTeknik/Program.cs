@@ -12,7 +12,6 @@ using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using StudyTeknik.Middleware;
-using StudyTeknik.Service;
 using MediatR;
 using FluentValidation;
 using Microsoft.OpenApi.Models;
@@ -23,6 +22,7 @@ using Infrastructure.Persistence.Repositories;
 using System.IdentityModel.Tokens.Jwt;
 using Application.Abstractions.IPersistence;
 using Application.Decks.IRepository;
+using Infrastructure.Service;
 
 namespace StudyTeknik;
 
