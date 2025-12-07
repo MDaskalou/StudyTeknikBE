@@ -1,0 +1,36 @@
+name: .NET CI
+
+# När ska detta köras?
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest  # Vi lånar en Linux-dator av GitHub
+
+    steps:
+    # 1. Hämta koden
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    # 2. Installera .NET på datorn (Anpassa version om du kör .NET 7 eller 9)
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    # 3. Hämta alla paket (NuGet)
+    - name: Restore dependencies
+      run: dotnet restore
+
+    # 4. Bygg projektet (kollar så att koden kompilerar)
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
+
+    # 5. Kör testerna (Här kommer dina NUnit-tester köras!)
+    - name: Test
+      run: dotnet test --no-build --configuration Release --verbosity normal
