@@ -42,7 +42,7 @@ namespace StudyTeknik.Controllers
             
         }
 
-        [HttpGet]
+        [HttpGet("GetAllDecks")]
         public async Task<IActionResult> GetAllDecks(CancellationToken ct)
         {
             var query = new GetAllDecksQuery();

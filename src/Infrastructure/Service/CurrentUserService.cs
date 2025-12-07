@@ -1,10 +1,8 @@
-﻿using Application.Abstractions;
-using System;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 using Application.Abstractions.IPersistence.Repositories;
 using Microsoft.AspNetCore.Http;
 
-namespace StudyTeknik.Services
+namespace Infrastructure.Service
 {
     // Denna klass implementerar ALLA delar av interfacet
     public sealed class CurrentUserService : ICurrentUserService
