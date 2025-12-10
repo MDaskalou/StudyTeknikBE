@@ -7,7 +7,9 @@
         NotFound = 2,
         Conflict = 3,
         InternalServiceError = 4,
-        Forbidden = 5
+        Forbidden = 5,
+        BadRequest = 6,
+        Unauthorized = 7
     }
 
     public record Error(string Code, string Description, ErrorType Type)
@@ -18,6 +20,8 @@
         public static Error Validation(string code, string desc) => new(code, desc, ErrorType.Validation);
         public static Error InternalServiceError(string code, string desc) => new(code, desc, ErrorType.InternalServiceError);
         public static Error Forbidden(string code, string desc) => new(code, desc, ErrorType.Failure);
+        public static Error BadRequest(string code, string desc) => new(code, desc, ErrorType.BadRequest);
+        public static Error Unauthorized(string code, string desc) => new(code, desc, ErrorType.Unauthorized);
     }
 
     public class OperationResult
