@@ -14,6 +14,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Student.Commands;
+using Application.Student.Queries.GetMyGeneralInfo;
 
 namespace StudyTeknik.Controllers
 {
@@ -121,6 +122,20 @@ namespace StudyTeknik.Controllers
             }
                 
             return NoContent();
+        }
+        [HttpGet("student/general")] 
+        [Authorize]
+        public async Task<IActionResult> GetStudentGeneralInfo(CancellationToken ct)
+        {
+            var result = await _mediator.Send(new GetStudentGeneralInfoQuery(), ct);
+            if (result.IsFailure)
+            {
+                return result.Error.Type == ErrorType.NotFound 
+                    ? NotFound(result.Error) 
+                    : BadRequest(result.Error);
+            }
+
+            return Ok(result.Value);
         }
     }
 }
