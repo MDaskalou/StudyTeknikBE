@@ -33,4 +33,4 @@ jobs:
 
     # 5. Kör testerna (Här kommer dina NUnit-tester köras!)
     - name: Test
-      run: dotnet test --no-build --configuration Release --verbosity normal
+      run: dotnet test --configuration Release --verbosity normal
