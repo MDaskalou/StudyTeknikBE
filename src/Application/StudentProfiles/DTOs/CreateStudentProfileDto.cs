@@ -1,4 +1,4 @@
-﻿namespace Application.StudentProfile.DTOs
+﻿namespace Application.StudentProfiles.DTOs
 {
     public record CreateStudentProfileDto(
         int PlanningHorizonWeeks,

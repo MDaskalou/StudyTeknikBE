@@ -1,19 +1,20 @@
 ﻿using System.Security.Claims;
 using Application.Common.Results;
-using Application.StudentProfile.Commands.CreateStudentProfile;
-using Application.StudentProfile.DTOs;
+using Application.StudentProfile.Queries.GetAllStudentProfile;
+using Application.StudentProfiles.Commands.CreateStudentProfile;
+using Application.StudentProfiles.DTOs;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-// Ditt namespace för Command
-// För Result och ErrorType
-// För att hitta inloggad User
+// Om du vill kräva inloggning
 
-// <--- Lägg till denna using
 
-namespace StudyTeknik.Controllers
+namespace StudyTeknik.Controllers 
 {
     [ApiController]
     [Route("api/student-profiles")]
+    [Authorize]
+    
     public class StudentProfilesController : ControllerBase
     {
         private readonly ISender _sender;
@@ -23,20 +24,38 @@ namespace StudyTeknik.Controllers
             _sender = sender;
         }
 
-        [HttpPost("createstudentprofile")]
-        public async Task<IActionResult> CreateProfile([FromBody] CreateStudentProfileDto request)
+        // --- 1. GET: Hämta alla profiler ---
+        // URL: GET api/student-profiles
+        [HttpGet("GetAllStudentProfiles")]
+        public async Task<IActionResult> GetAll(CancellationToken ct)
         {
-            // 1. Hämta User ID från token
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var query = new GetAllStudentProfilesQuery();
             
-            // Validering att vi faktiskt fick ett ID (Auth middleware borde sköta detta, men safety first)
-            if (!Guid.TryParse(userIdString, out var studentId))
+            var result = await _sender.Send(query, ct);
+
+            if (result.IsFailure)
             {
-                return Unauthorized("Kunde inte identifiera användaren.");
+                return HandleFailure(result.Error);
             }
 
-            // 2. Mappa DTO -> Command
-            // Här gör vi om den "dumma" DTO:n till vårt interna Command
+            return Ok(result.Value);
+        }
+
+        // --- 2. POST: Skapa profil ---
+        // URL: POST api/student-profiles
+        [HttpPost] 
+        public async Task<IActionResult> Create([FromBody] CreateStudentProfileDto request, CancellationToken ct)
+        {
+            // A. Hämta User ID från token (Claims)
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
+            // Safety check: Om ingen är inloggad eller ID saknas
+            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var studentId))
+            {
+                return Unauthorized(new { message = "Kunde inte identifiera användaren." });
+            }
+
+            // B. Skapa Command
             var command = new CreateStudentProfileCommand(
                 studentId,
                 request.PlanningHorizonWeeks,
@@ -44,19 +63,20 @@ namespace StudyTeknik.Controllers
                 request.BedTime
             );
 
-            // 3. Skicka iväg
-            var result = await _sender.Send(command);
+            // C. Skicka via MediatR
+            var result = await _sender.Send(command, ct);
 
-            // 4. Hantera svar
+            // D. Hantera svar
             if (result.IsFailure)
             {
                 return HandleFailure(result.Error);
             }
 
-            // Returnera 200 OK med ID:t
+            // Returnera 200 OK (eller 201 Created om du vill vara strikt REST)
             return Ok(result.Value);
         }
 
+        // --- Gemensam felhanterare ---
         private IActionResult HandleFailure(Error error)
         {
             return error.Type switch
@@ -64,6 +84,7 @@ namespace StudyTeknik.Controllers
                 ErrorType.Validation => BadRequest(error),
                 ErrorType.NotFound => NotFound(error),
                 ErrorType.Conflict => Conflict(error),
+                ErrorType.Forbidden => Forbid(error.Description),
                 _ => StatusCode(500, error)
             };
         }

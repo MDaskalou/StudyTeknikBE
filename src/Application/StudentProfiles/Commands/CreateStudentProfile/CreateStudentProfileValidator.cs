@@ -1,4 +1,5 @@
 ﻿using Application.Common.Results;
+using Application.StudentProfiles.Commands.CreateStudentProfile;
 using FluentValidation;
 using FluentValidation.Validators;
 

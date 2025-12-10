@@ -4,11 +4,12 @@ using FluentAssertions;      // För .Should().Be...
 using Domain.Common;         // För ErrorType
 using Domain.Models.StudentProfiles; // För StudentProfile-objektet
 using Application.StudentProfile.Commands.CreateStudentProfile;
-using Application.StudentProfile.Repository;
 using System.Threading;
 using System.Threading.Tasks;
 using System;
 using Application.Common.Results;
+using Application.StudentProfiles.Commands.CreateStudentProfile;
+using Application.StudentProfiles.IRepository;
 
 namespace StudyTeknik.Test.StudentProfileTest
 {

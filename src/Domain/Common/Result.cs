@@ -23,6 +23,8 @@ namespace Domain.Common
 
         public static Result Success() => new(true, string.Empty);
         public static Result Failure(string error) => new(false, error);
+        
+        public static Result<T> Success<T>(T value) => Result<T>.Success(value);
 
        
     }
