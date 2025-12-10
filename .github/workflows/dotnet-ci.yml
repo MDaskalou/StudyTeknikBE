@@ -17,20 +17,23 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    # 2. Installera .NET på datorn (Anpassa version om du kör .NET 7 eller 9)
+    # 2. Installera .NET på datorn
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
 
     # 3. Hämta alla paket (NuGet)
+    # ÄNDRING: Peka ut sln-filen explicit
     - name: Restore dependencies
-      run: dotnet restore
+      run: dotnet restore ./StudyTeknik.sln
 
-    # 4. Bygg projektet (kollar så att koden kompilerar)
+    # 4. Bygg projektet
+    # ÄNDRING: Peka ut sln-filen explicit
     - name: Build
-      run: dotnet build --no-restore --configuration Release
+      run: dotnet build ./StudyTeknik.sln --no-restore --configuration Release
 
-    # 5. Kör testerna (Här kommer dina NUnit-tester köras!)
+    # 5. Kör testerna
+    # ÄNDRING: Peka ut sln-filen OCH tog bort --no-build för att fixa deps.json-felet
     - name: Test
-      run: dotnet test --configuration Release --verbosity normal
+      run: dotnet test ./StudyTeknik.sln --configuration Release --verbosity normal
