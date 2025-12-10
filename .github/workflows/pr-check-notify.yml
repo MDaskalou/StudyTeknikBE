@@ -42,8 +42,8 @@ jobs:
 
       # Kör alla tester som tillhör den specifika solution-filen
       - name: Kör tester (dotnet test)
-        run: dotnet test ./src/StudyTeknik.sln --no-build
-        # Vi lägger till '--no-build' eftersom vi redan har byggt.
+        run: dotnet test ./src/StudyTeknik.sln    
+# Vi lägger till '--no-build' eftersom vi redan har byggt.
         # Om testerna misslyckas, kommer detta steg att "misslyckas"
         # och 'job.status' blir 'failure'
       
