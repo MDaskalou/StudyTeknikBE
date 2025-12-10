@@ -23,9 +23,9 @@ using System.IdentityModel.Tokens.Jwt;
 using Application.Abstractions.IPersistence;
 using Application.Decks.IRepository;
 using Infrastructure.Service;
-using Application.StudentProfile.Repository; 
 using Infrastructure.Persistence.Repositories; 
-using Application.Common.Behaviors; 
+using Application.Common.Behaviors;
+using Application.StudentProfiles.IRepository;
 
 namespace StudyTeknik;
 
