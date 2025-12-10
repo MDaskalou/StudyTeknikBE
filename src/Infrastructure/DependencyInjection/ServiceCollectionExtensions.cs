@@ -18,7 +18,7 @@ namespace Infrastructure.DependencyInjection
         // - DbContext (EF Core + SQL Server)
         // - IAppDbContext (abstraktion till samma DbContext)
         // - Tekniska tjänster (tid, audit)
-        // - Repository-implementationer (EF mot DbContext)
+        // - IRepository-implementationer (EF mot DbContext)
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             // 1) Anslutning till databasen (SQL Server)
@@ -39,7 +39,7 @@ namespace Infrastructure.DependencyInjection
             services.AddScoped<IDateTimeProvider, DateTimeProvider>();
             services.AddScoped<IAuditLogger, AuditLogger>();
 
-            // 4) Repository-implementationer (Infrastructure) kopplas till Application-interfacen
+            // 4) IRepository-implementationer (Infrastructure) kopplas till Application-interfacen
             services.AddScoped<IClassRepository, ClassRepository>();
             services.AddScoped<IDiaryRepository, DiaryRepository>();
             

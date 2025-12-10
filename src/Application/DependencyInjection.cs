@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using Application.Common.Behaviors;
 
 namespace Application
 {
@@ -8,11 +9,19 @@ namespace Application
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
-            // Konfigurerar MediatR för att hitta alla Handlers i detta projekt
+            // 1. Konfigurera MediatR
             services.AddMediatR(cfg => 
-                cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+            {
+                // Registrera alla Handlers automatiskt
+                cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+
+                // Registrera din Pipeline Behavior (Validering)
+                // Detta gör att validering körs automatiskt innan varje Handler
+                cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+            });
             
-            // Konfigurerar FluentValidation för att hitta alla Validators i detta projekt
+            // 2. Konfigurera FluentValidation
+            // Registrera alla Validators automatiskt
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
             return services;

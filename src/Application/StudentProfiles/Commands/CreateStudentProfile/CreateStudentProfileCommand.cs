@@ -1,7 +1,7 @@
 ﻿using Application.Common.Results;
 using MediatR;
 
-namespace Application.StudentProfile.Commands.CreateStudentProfile
+namespace Application.StudentProfiles.Commands.CreateStudentProfile
 {
     public record CreateStudentProfileCommand(
         Guid StudentId,

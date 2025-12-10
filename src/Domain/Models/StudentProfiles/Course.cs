@@ -48,7 +48,7 @@ namespace Domain.Models.StudentProfiles
             Touch();
         }
 
-        // 5. Load-metod för Repository
+        // 5. Load-metod för IRepository
         public static Course Load(
             Guid id, 
             string name, 

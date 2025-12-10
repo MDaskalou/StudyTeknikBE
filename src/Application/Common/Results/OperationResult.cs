@@ -35,6 +35,7 @@
         // Dessa metoder returnerar BARA icke-generiska resultat
         public static OperationResult Success() => new(true, Error.None);
         public static OperationResult Failure(Error error) => new(false, error);
+        public static OperationResult<T> Success<T>(T value) => OperationResult<T>.Success(value);
     }
 
     public class OperationResult<T> : OperationResult

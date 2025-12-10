@@ -125,7 +125,6 @@ public partial class Program
         // AuthZ (inga ändringar här)
         builder.Services.AddAuthorization(options =>
         {
-            // ... (dina 'HasWriteScope' och 'HasReadScope' policies är här, inga ändringar) ...
         });
         
         // MediatR & FluentValidation (inga ändringar här)
@@ -133,7 +132,6 @@ public partial class Program
         {
             cfg.RegisterServicesFromAssembly(typeof(GetAllStudentsHandler).Assembly);
             
-            // --- NYTT: Registrera Pipeline Behavior (Dörrvakten) ---
             // Detta krävs för att Validatorn ska köras automatiskt!
             cfg.AddOpenBehavior(typeof(ValidationBehavior<,>)); 
         });
@@ -188,7 +186,7 @@ public partial class Program
         app.MapControllers();
 
         app.Run();
-        
+
     }
 
 }

@@ -1,4 +1,5 @@
-﻿using Application.StudentProfile.Repository; 
+﻿using Application.StudentProfiles.IRepository;
+using Domain.Entities;
 using Domain.Models.StudentProfiles;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Mapper; // Se till att namnet på mappen stämmer (Mappers vs Mapper)
@@ -33,5 +34,24 @@ namespace Infrastructure.Persistence.Repositories
             
             await _context.SaveChangesAsync(cancellationToken);
         }
+        
+
+        public async Task<List<Domain.Models.StudentProfiles.StudentProfile>> GetAllAsync(CancellationToken ct)
+        {
+            // 1. Hämta alla entities från databasen
+            var entities = await _context.StudentProfiles
+                .AsNoTracking() // Snabbare för läsning
+                .ToListAsync(ct);
+
+            // 2. Mappa om listan: Entity -> Domain
+            // Vi använder din statiska ToDomain-metod (om du har skapat den i mappen, se nedan)
+            var domainList = entities
+                .Select(e => StudentProfileMapper.ToDomain(e))
+                .Where(x => x != null) // Säkerhetsåtgärd om nån blev null
+                .ToList();
+
+            return domainList!;
+        }
+        
     }
 }

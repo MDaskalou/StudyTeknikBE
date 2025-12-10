@@ -1,10 +1,8 @@
 ﻿using Application.Common.Results;
-using Application.StudentProfile.Repository;
-using Domain.Common;
-using Domain.Models.StudentProfiles;
+using Application.StudentProfiles.IRepository;
 using MediatR;
 
-namespace Application.StudentProfile.Commands.CreateStudentProfile
+namespace Application.StudentProfiles.Commands.CreateStudentProfile
 {
     public class CreateStudentProfileHandler :IRequestHandler<CreateStudentProfileCommand, OperationResult<Guid>>
     {
