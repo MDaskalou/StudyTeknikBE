@@ -132,7 +132,6 @@ public partial class Program
         {
             cfg.RegisterServicesFromAssembly(typeof(GetAllStudentsHandler).Assembly);
             
-            // --- NYTT: Registrera Pipeline Behavior (Dörrvakten) ---
             // Detta krävs för att Validatorn ska köras automatiskt!
             cfg.AddOpenBehavior(typeof(ValidationBehavior<,>)); 
         });
