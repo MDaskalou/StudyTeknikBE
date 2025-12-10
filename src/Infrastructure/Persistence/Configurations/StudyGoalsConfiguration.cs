@@ -14,18 +14,19 @@ namespace Infrastructure.Persistence.Configurations
                 .IsRequired()
                 .HasMaxLength(500);
             
-            builder.HasOne<UserEntity>()
+            // FIX: Ändra till NoAction för att undvika cykel med User -> Profile -> Course -> Goal
+            builder.HasOne(sg => sg.User)
                 .WithMany()
                 .HasForeignKey(sg => sg.UserId)
                 .IsRequired()
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction); 
             
-            builder.HasOne<SubjectEntity>()
-                .WithMany()
-                .HasForeignKey(sg => sg.SubjectId)
+            // FIX: Ändra till Cascade. Om kursen raderas, ska målen för kursen försvinna.
+            builder.HasOne(sg => sg.Course)
+                .WithMany() // (Lägg gärna till navigation property i CourseEntity senare: public ICollection<StudyGoal> StudyGoals { get; set; })
+                .HasForeignKey(sg => sg.CourseId)
                 .IsRequired()
-                .OnDelete(DeleteBehavior.Restrict);
-            
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

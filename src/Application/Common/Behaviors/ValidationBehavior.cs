@@ -1,15 +1,47 @@
-﻿namespace Application.Common.Behaviors
-{
-    // TODO: Registrera i AddApplication() som pipeline
-    // TODO: Skapa Validators för varje Command/Query
-    
-    // Syftet med denna behavior är att validera inkommande
-    // requests med hjälp av FluentValidation innan de når sin respektive handler.
-    //FluentValidation säkerställer att alla inkommande data uppfyller de definierade reglerna
-    // och minskar risken för fel längre ner i applikationen.
+﻿using FluentValidation;
+using MediatR;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
-    public class ValidationBehavior
+namespace Application.Common.Behaviors // Eller det namespace du använder
+{
+    // VIKTIGT: Klassen MÅSTE ha <TRequest, TResponse> här!
+    public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+        where TRequest : IRequest<TResponse>
     {
-        
+        private readonly IEnumerable<IValidator<TRequest>> _validators;
+
+        public ValidationBehavior(IEnumerable<IValidator<TRequest>> validators)
+        {
+            _validators = validators;
+        }
+
+        public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+        {
+            if (!_validators.Any())
+            {
+                return await next();
+            }
+
+            var context = new ValidationContext<TRequest>(request);
+
+            var validationResults = await Task.WhenAll(
+                _validators.Select(v => v.ValidateAsync(context, cancellationToken)));
+
+            var failures = validationResults
+                .SelectMany(r => r.Errors)
+                .Where(f => f != null)
+                .ToList();
+
+            if (failures.Count != 0)
+            {
+                // Här kastar vi ett ValidationException som MediatR fångar upp
+                throw new ValidationException(failures);
+            }
+
+            return await next();
+        }
     }
 }

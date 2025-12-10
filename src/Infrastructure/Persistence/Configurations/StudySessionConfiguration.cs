@@ -15,18 +15,18 @@ namespace Infrastructure.Persistence.Configurations
             builder.Property(s => s.BreakFeedback).HasMaxLength(50);
 
             // Relation: Ett 'User' kan ha många 'Sessions'
-            builder.HasOne<UserEntity>()
+            builder.HasOne(s => s.User)
                 .WithMany()
                 .HasForeignKey(s => s.UserId)
                 .IsRequired()
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
 
             // Relation: Ett 'Subject' kan ha många 'Sessions'
-            builder.HasOne<SubjectEntity>()
+            builder.HasOne(s => s.Course)
                 .WithMany()
-                .HasForeignKey(s => s.SubjectId)
+                .HasForeignKey(s => s.CourseId)
                 .IsRequired()
-                .OnDelete(DeleteBehavior.Cascade);
+                .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

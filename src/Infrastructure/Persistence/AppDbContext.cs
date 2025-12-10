@@ -20,14 +20,15 @@ namespace Infrastructure.Persistence
         public DbSet<WeeklySummaryEntity> WeeklySummaries => Set<WeeklySummaryEntity>();
         public DbSet<ClassEntity> Classes => Set<ClassEntity>();
         public DbSet<EnrollmentEntity> Enrollments => Set<EnrollmentEntity>();
-        public DbSet<MentorAssigmentEntity> MentorAssignments => Set<MentorAssigmentEntity>(); // se notis nedan
+        public DbSet<MentorAssigmentEntity> MentorAssignments => Set<MentorAssigmentEntity>(); 
         public DbSet<AuditLogEntity> AuditLogs => Set<AuditLogEntity>();
         public DbSet<DeckEntity> Decks => Set<DeckEntity>();
         public DbSet<FlashCardEntity> FlashCards => Set<FlashCardEntity>();
-        public DbSet<SubjectEntity> Subjects => Set<SubjectEntity>();
         public DbSet<StudyGoalsEntity> StudyGoals => Set<StudyGoalsEntity>();
         public DbSet<StudyPlanTasksEntity> StudyPlanTasks => Set<StudyPlanTasksEntity>();
         public DbSet<StudySessionsEntity> StudySessions => Set<StudySessionsEntity>();
+        public DbSet<StudentProfileEntity> StudentProfiles => Set<StudentProfileEntity>();
+        public DbSet<CourseEntity> Courses => Set<CourseEntity>();
         
         //testar
         
