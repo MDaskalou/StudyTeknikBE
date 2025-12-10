@@ -125,7 +125,6 @@ public partial class Program
         // AuthZ (inga ändringar här)
         builder.Services.AddAuthorization(options =>
         {
-            // ... (dina 'HasWriteScope' och 'HasReadScope' policies är här, inga ändringar) ...
         });
         
         // MediatR & FluentValidation (inga ändringar här)
