@@ -8,15 +8,17 @@ namespace Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<StudyPlanTasksEntity> builder)
         {
-            builder.HasKey(sg => sg.Id);
+            // Bytte variabelnamn från sg -> t för tydlighet
+            builder.HasKey(t => t.Id);
             
-            builder.Property(sg => sg.Description)
+            builder.Property(t => t.Description)
                 .IsRequired()
                 .HasMaxLength(1000);
 
+            // Cascade är helt rätt här. Tar man bort målet ska uppgifterna försvinna.
             builder.HasOne<StudyGoalsEntity>()
                 .WithMany()
-                .HasForeignKey(sg => sg.StudyGoalId)
+                .HasForeignKey(t => t.StudyGoalId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Cascade);
         }

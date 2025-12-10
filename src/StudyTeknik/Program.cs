@@ -23,10 +23,13 @@ using System.IdentityModel.Tokens.Jwt;
 using Application.Abstractions.IPersistence;
 using Application.Decks.IRepository;
 using Infrastructure.Service;
+using Application.StudentProfile.Repository; 
+using Infrastructure.Persistence.Repositories; 
+using Application.Common.Behaviors; 
 
 namespace StudyTeknik;
 
-public class Program
+public partial class Program
 {
     public static async Task Main(string[] args)
     {
@@ -114,6 +117,7 @@ public class Program
         builder.Services.AddScoped<IStudentRepository, StudentRepository>();
         builder.Services.AddScoped<IDiaryRepository, DiaryRepository>(); 
         builder.Services.AddScoped<IDeckRepository, DeckRepository>();
+        builder.Services.AddScoped<IStudentProfileRepository, StudentProfileRepository>();
         
         //AIService (inga ändringar här)
         builder.Services.AddScoped<IAIService, AIService>();
@@ -125,7 +129,14 @@ public class Program
         });
         
         // MediatR & FluentValidation (inga ändringar här)
-        builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetAllStudentsHandler).Assembly));
+        builder.Services.AddMediatR(cfg => 
+        {
+            cfg.RegisterServicesFromAssembly(typeof(GetAllStudentsHandler).Assembly);
+            
+            // --- NYTT: Registrera Pipeline Behavior (Dörrvakten) ---
+            // Detta krävs för att Validatorn ska köras automatiskt!
+            cfg.AddOpenBehavior(typeof(ValidationBehavior<,>)); 
+        });
         builder.Services.AddValidatorsFromAssembly(typeof(GetAllStudentsHandler).Assembly);
 
         // Swagger (inga ändringar här)
@@ -177,5 +188,7 @@ public class Program
         app.MapControllers();
 
         app.Run();
+        
     }
+
 }
