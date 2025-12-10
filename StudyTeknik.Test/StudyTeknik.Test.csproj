@@ -7,6 +7,8 @@
 
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
+        <PreserveCompilationContext>true</PreserveCompilationContext>
+
     </PropertyGroup>
 
     <ItemGroup>
@@ -28,6 +30,8 @@
 
     <ItemGroup>
       <ProjectReference Include="..\src\Infrastructure\Infrastructure.csproj" />
+        <ProjectReference Include="..\src\StudyTeknik\StudyTeknik.csproj" /> 
+
     </ItemGroup>
 
 </Project>

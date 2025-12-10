@@ -186,7 +186,7 @@ public partial class Program
         app.MapControllers();
 
         app.Run();
-        
+
     }
 
 }
