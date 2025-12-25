@@ -62,7 +62,7 @@ namespace StudyTeknik.Controllers
             return Ok(queryResult.Value);
         }
         
-        [HttpGet("GetDeckById/{Id}")]
+        [HttpGet("{Id}")] 
         public async Task<IActionResult> GetDeckById(Guid Id, CancellationToken ct)
         {
             var query = new GetDeckByIdQuery(Id);

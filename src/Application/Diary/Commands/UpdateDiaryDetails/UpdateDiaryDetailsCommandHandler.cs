@@ -1,4 +1,4 @@
-﻿using Application.Abstractions;
+﻿﻿using Application.Abstractions;
 using Application.Common.Results;
 using Application.Diary.Commands.UpdateDiaryDetails;
 using Application.Diary.Dtos;
@@ -10,7 +10,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Application.Abstractions.IPersistence.Repositories;
 
 namespace Application.Diary.Commands.UpdateDiaryDetails
 {

@@ -22,6 +22,20 @@ namespace Infrastructure.Persistence.Repositories
                 .AsNoTracking()
                 .AnyAsync(sp => sp.StudentId == studentId, ct);
         }
+
+        public async Task<Domain.Models.StudentProfiles.StudentProfile?> GetByIdAsync(Guid id, CancellationToken ct)
+        {
+            // 1. Hämta entity från databasen
+            var entity = await _context.StudentProfiles
+                .AsNoTracking()
+                .FirstOrDefaultAsync(sp => sp.Id == id, ct);
+
+            if (entity == null)
+                return null;
+
+            // 2. Mappa om: Entity -> Domain
+            return StudentProfileMapper.ToDomain(entity);
+        }
         
         public async Task AddAsync(Domain.Models.StudentProfiles.StudentProfile profile, CancellationToken cancellationToken)
         {

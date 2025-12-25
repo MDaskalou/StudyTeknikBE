@@ -1,4 +1,4 @@
-﻿namespace Application.Common.Results
+﻿﻿namespace Application.Common.Results
 {
     public enum ErrorType
     {
@@ -19,7 +19,7 @@
         public static Error Conflict(string code, string desc) => new(code, desc, ErrorType.Conflict);
         public static Error Validation(string code, string desc) => new(code, desc, ErrorType.Validation);
         public static Error InternalServiceError(string code, string desc) => new(code, desc, ErrorType.InternalServiceError);
-        public static Error Forbidden(string code, string desc) => new(code, desc, ErrorType.Failure);
+        public static Error Forbidden(string code, string desc) => new(code, desc, ErrorType.Forbidden);
         public static Error BadRequest(string code, string desc) => new(code, desc, ErrorType.BadRequest);
         public static Error Unauthorized(string code, string desc) => new(code, desc, ErrorType.Unauthorized);
     }

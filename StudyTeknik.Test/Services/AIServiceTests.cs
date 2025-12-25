@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Infrastructure.Service;
+using Microsoft.Extensions.Configuration;
 using Moq;
 
 namespace StudyTeknik.Test.Services

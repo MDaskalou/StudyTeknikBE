@@ -6,7 +6,7 @@ using Application.StudentProfiles.DTOs;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-// Om du vill kräva inloggning
+using StudyTeknik.Extensions;
 
 
 namespace StudyTeknik.Controllers 
@@ -43,37 +43,39 @@ namespace StudyTeknik.Controllers
 
         // --- 2. POST: Skapa profil ---
         // URL: POST api/student-profiles
-        [HttpPost] 
+        [HttpPost("CreateStudentProfile")] 
         public async Task<IActionResult> Create([FromBody] CreateStudentProfileDto request, CancellationToken ct)
         {
-            // A. Hämta User ID från token (Claims)
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            // Hämta User ID från token via InternalUserId claim (satt av UserProvisioningMiddleware)
+            var studentId = User.GetUserIdAsGuid();
             
-            // Safety check: Om ingen är inloggad eller ID saknas
-            if (string.IsNullOrEmpty(userIdString) || !Guid.TryParse(userIdString, out var studentId))
+            // Safety check: Om ID saknas returnera Unauthorized
+            if (studentId == null || studentId == Guid.Empty)
             {
-                return Unauthorized(new { message = "Kunde inte identifiera användaren." });
+                return Unauthorized(new { 
+                    message = "Kunde inte identifiera användaren. Ingen giltigt user ID hittades i token."
+                });
             }
 
-            // B. Skapa Command
+            // Skapa Command
             var command = new CreateStudentProfileCommand(
-                studentId,
+                studentId.Value,
                 request.PlanningHorizonWeeks,
                 request.WakeUpTime,
                 request.BedTime
             );
 
-            // C. Skicka via MediatR
+            // Skicka via MediatR
             var result = await _sender.Send(command, ct);
 
-            // D. Hantera svar
+            // Hantera svar
             if (result.IsFailure)
             {
                 return HandleFailure(result.Error);
             }
 
-            // Returnera 200 OK (eller 201 Created om du vill vara strikt REST)
-            return Ok(result.Value);
+            // Returnera 201 Created (REST best practice)
+            return CreatedAtAction(nameof(GetAll), new { id = result.Value }, result.Value);
         }
 
         // --- Gemensam felhanterare ---

@@ -1,6 +1,8 @@
 ﻿using Application.Common.Results;
 using Application.StudentProfiles.IRepository;
+using Domain.Common;
 using MediatR;
+using System.Security.Claims;
 
 namespace Application.StudentProfiles.Commands.CreateStudentProfile
 {
@@ -35,7 +37,6 @@ namespace Application.StudentProfiles.Commands.CreateStudentProfile
            
            await _studentProfileRepository.AddAsync(profile, cancellationToken);
            
-           // FIX 4: Använd OperationResult<Guid> för att returnera värdet korrekt
            return OperationResult<Guid>.Success(profile.Id);
        }
     }

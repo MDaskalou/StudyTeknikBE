@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Application.Abstractions.IPersistence; // IAppDbContext
@@ -27,6 +27,7 @@ namespace Infrastructure.Persistence
         public DbSet<StudyGoalsEntity> StudyGoals => Set<StudyGoalsEntity>();
         public DbSet<StudyPlanTasksEntity> StudyPlanTasks => Set<StudyPlanTasksEntity>();
         public DbSet<StudySessionsEntity> StudySessions => Set<StudySessionsEntity>();
+        public DbSet<StudySessionStepEntity> StudySessionSteps => Set<StudySessionStepEntity>();
         public DbSet<StudentProfileEntity> StudentProfiles => Set<StudentProfileEntity>();
         public DbSet<CourseEntity> Courses => Set<CourseEntity>();
         

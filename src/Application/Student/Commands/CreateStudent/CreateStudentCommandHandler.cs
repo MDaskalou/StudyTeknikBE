@@ -1,4 +1,4 @@
-﻿using Application.Common.Results;
+﻿﻿using Application.Common.Results;
 using Application.Student.Commands.CreateStudent;
 using Application.Student.Dtos;
 using Application.Student.Repository;
@@ -10,7 +10,6 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Domain.Common;
 
 public sealed class CreateStudentHandler
     : IRequestHandler<CreateStudentCommand, OperationResult<StudentCreatedDto>>
