@@ -58,7 +58,7 @@ namespace Domain.Models.StudentProfiles
                 return Result.Failure("Kursen finns redan.");
 
             // Anropa den interna fabriken på Course
-            var courseResult = Course.Create(name, description, difficulty);
+            var courseResult = Course.Create(this.Id, name, description, difficulty);
             
             if (courseResult.IsFailure) 
                 return Result.Failure(courseResult.Error);

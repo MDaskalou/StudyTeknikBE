@@ -5,6 +5,7 @@ namespace Application.StudentProfiles.IRepository
     public interface IStudentProfileRepository
     {
         Task<bool> ExistsByUserIdAsync(Guid studentId, CancellationToken ct);
+        Task<Domain.Models.StudentProfiles.StudentProfile?> GetByIdAsync(Guid id, CancellationToken ct);
         
         Task AddAsync(Domain.Models.StudentProfiles.StudentProfile studentProfile, CancellationToken ct);
         

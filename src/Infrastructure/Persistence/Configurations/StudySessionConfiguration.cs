@@ -8,25 +8,45 @@ namespace Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<StudySessionsEntity> builder)
         {
-            builder.HasKey(s => s.Id);
+            builder.ToTable("StudySessions");
+            builder.HasKey(x => x.Id);
 
-            builder.Property(s => s.TaskDescription).HasMaxLength(500);
-            builder.Property(s => s.WorkFeedback).HasMaxLength(50);
-            builder.Property(s => s.BreakFeedback).HasMaxLength(50);
+            // Properties
+            builder.Property(x => x.Id).IsRequired();
+            builder.Property(x => x.UserId).IsRequired();
+            builder.Property(x => x.CourseId).IsRequired();
+            builder.Property(x => x.SessionGoal).IsRequired().HasMaxLength(500);
+            builder.Property(x => x.StartDateUtc).IsRequired();
+            builder.Property(x => x.EndDateUtc);
+            builder.Property(x => x.PlannedMinutes).IsRequired();
+            builder.Property(x => x.ActualMinutes).IsRequired();
+            builder.Property(x => x.EnergyStart).IsRequired();
+            builder.Property(x => x.EnergyEnd).IsRequired();
+            builder.Property(x => x.Status).IsRequired();
+            builder.Property(x => x.CreatedAtUtc).IsRequired();
+            builder.Property(x => x.UpdatedAtUtc).IsRequired();
 
-            // Relation: Ett 'User' kan ha många 'Sessions'
-            builder.HasOne(s => s.User)
+            // Relationships
+            builder.HasOne(x => x.User)
                 .WithMany()
-                .HasForeignKey(s => s.UserId)
-                .IsRequired()
-                .OnDelete(DeleteBehavior.NoAction);
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // Relation: Ett 'Subject' kan ha många 'Sessions'
-            builder.HasOne(s => s.Course)
+            builder.HasOne(x => x.Course)
                 .WithMany()
-                .HasForeignKey(s => s.CourseId)
-                .IsRequired()
-                .OnDelete(DeleteBehavior.NoAction);
+                .HasForeignKey(x => x.CourseId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(x => x.Steps)
+                .WithOne(s => s.StudySession)
+                .HasForeignKey(s => s.StudySessionId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Indexes
+            builder.HasIndex(x => x.UserId);
+            builder.HasIndex(x => x.CourseId);
+            builder.HasIndex(x => x.Status);
         }
     }
 }
+

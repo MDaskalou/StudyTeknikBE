@@ -1,4 +1,4 @@
-﻿using Domain.Entities;
+﻿﻿using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,10 +12,9 @@ namespace Infrastructure.Persistence.Configurations
 
             builder.Property(fcard => fcard.Id);
             builder.Property(fcard => fcard.FrontText)
-                .HasMaxLength(20)
+                .HasMaxLength(500)
                 .IsRequired();
             builder.Property(fcard => fcard.BackText)
-                .HasMaxLength(100)
                 .IsRequired();
             
             builder.HasIndex(fcard => fcard.NextReviewAtUtc);

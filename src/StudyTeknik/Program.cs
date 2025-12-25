@@ -76,6 +76,8 @@ public partial class Program
                 }
             }
             // --- SLUT MANUELL NYCKELHÄMTNING ---
+            
+            // 🔑 KRITISKT: Rensa default claim type mappning så att "sub" behålls intakt
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
             
             // AuthN
@@ -94,14 +96,44 @@ public partial class Program
                         ValidAudience = audience,
                         ValidateLifetime = true,
                         ValidateIssuerSigningKey = true,
-                        RoleClaimType = "roles",
-                        NameClaimType = "sub"
+                        
+                        // 🔐 Claim Type Mapping (VIKTIGT!)
+                        // Berätta för JWT handler att inte remappa claim types
+                        RoleClaimType = "roles",              // Använd "roles" claim för roller
+                        NameClaimType = "sub"                // Använd "sub" claim för namn/ID
+                        
+                        // OBS: JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear() 
+                        // som redan är gjort ovan förhindrar automatisk remappning
                     };
 
                     if (signingKeys?.Count > 0)
                     {
                         options.TokenValidationParameters.IssuerSigningKeys = signingKeys;
                     }
+
+                    // 📊 Debug: Log claim extraction
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnTokenValidated = context =>
+                        {
+                            Console.WriteLine("✅ JWT Token validated successfully");
+                            var claims = context.Principal?.Claims.Select(c => $"{c.Type}={c.Value}").ToList();
+                            if (claims?.Any() == true)
+                            {
+                                Console.WriteLine("   Claims found:");
+                                foreach (var claim in claims)
+                                {
+                                    Console.WriteLine($"   - {claim}");
+                                }
+                            }
+                            return Task.CompletedTask;
+                        },
+                        OnAuthenticationFailed = context =>
+                        {
+                            Console.WriteLine($"❌ Authentication failed: {context.Exception?.Message}");
+                            return Task.CompletedTask;
+                        }
+                    };
                 });
         
         
@@ -177,8 +209,12 @@ public partial class Program
         //{
             //app.UseAuthentication(); 
        // }
-       app.UseAuthentication(); 
-       app.UseMiddleware<UserProvisioningMiddleware>();
+       
+        // 🔐 Global Exception Handler - MÅSTE vara först i pipeline!
+        app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
+        
+        app.UseAuthentication(); 
+        app.UseMiddleware<UserProvisioningMiddleware>();
         app.UseAuthorization(); 
         // --- SLUT PÅ NY KOD ---
         

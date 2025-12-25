@@ -225,8 +225,7 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("BackText")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
@@ -239,8 +238,8 @@ namespace Infrastructure.Migrations
 
                     b.Property<string>("FrontText")
                         .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int>("Interval")
                         .HasColumnType("int");
@@ -377,46 +376,97 @@ namespace Infrastructure.Migrations
                     b.ToTable("StudyPlanTasks");
                 });
 
+            modelBuilder.Entity("Domain.Entities.StudySessionStepEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<int>("DurationMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("OrderIndex")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StepType")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("StudySessionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderIndex");
+
+                    b.HasIndex("StudySessionId");
+
+                    b.ToTable("StudySessionSteps", (string)null);
+                });
+
             modelBuilder.Entity("Domain.Entities.StudySessionsEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("BreakFeedback")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<int>("ActualMinutes")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("CourseId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("StartDate")
+                    b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("TaskDescription")
+                    b.Property<DateTime?>("EndDateUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("EnergyEnd")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EnergyStart")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PlannedMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SessionGoal")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<DateTime>("StartDateUtc")
+                        .HasColumnType("datetime2");
 
-                    b.Property<int>("WorkDurationMinutes")
+                    b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<string>("WorkFeedback")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<DateTime>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CourseId");
 
+                    b.HasIndex("Status");
+
                     b.HasIndex("UserId");
 
-                    b.ToTable("StudySessions");
+                    b.ToTable("StudySessions", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.UserEntity", b =>
@@ -538,7 +588,7 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Entities.DeckEntity", "Deck")
                         .WithMany("FlashCards")
                         .HasForeignKey("DeckId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Deck");
@@ -583,18 +633,29 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Domain.Entities.StudySessionStepEntity", b =>
+                {
+                    b.HasOne("Domain.Entities.StudySessionsEntity", "StudySession")
+                        .WithMany("Steps")
+                        .HasForeignKey("StudySessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("StudySession");
+                });
+
             modelBuilder.Entity("Domain.Entities.StudySessionsEntity", b =>
                 {
                     b.HasOne("Domain.Entities.CourseEntity", "Course")
                         .WithMany()
                         .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.UserEntity", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Course");
@@ -610,6 +671,11 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.StudentProfileEntity", b =>
                 {
                     b.Navigation("Courses");
+                });
+
+            modelBuilder.Entity("Domain.Entities.StudySessionsEntity", b =>
+                {
+                    b.Navigation("Steps");
                 });
 #pragma warning restore 612, 618
         }
