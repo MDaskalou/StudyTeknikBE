@@ -168,5 +168,17 @@ namespace Infrastructure.Persistence.Repositories
             return await _db.Users
                 .FirstOrDefaultAsync(u => u.ExternalSubject == externalId, ct);
         }
+        
+        public async Task<UserEntity?> GetByEmailAsync(string email, CancellationToken ct)
+        {
+            return await _db.Users
+                .FirstOrDefaultAsync(u => u.Email == email, ct);
+        }
+
+        public async Task UpdateEntityAsync(UserEntity userEntity, CancellationToken ct)
+        {
+            _db.Users.Update(userEntity);
+            await _db.SaveChangesAsync(ct);
+        }
     }
 }
