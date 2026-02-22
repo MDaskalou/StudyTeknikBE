@@ -13,7 +13,12 @@ namespace Application.StudySessions.DTOs
         string SessionGoal,
         int PlannedMinutes,
         int EnergyStart,
-        List<CreateStudySessionStepRequest> Steps
+        int DifficultyLevel,
+        int MotivationLevel,
+        string? LearningChallenges,
+        string? StudyEnvironment,
+        string? AdditionalContext,
+        List<CreateStudySessionStepRequest>? Steps
     );
 }
 

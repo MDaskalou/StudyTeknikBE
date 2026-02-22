@@ -21,19 +21,22 @@ namespace Application.StudySessions.Commands.CreateStudySession
             RuleFor(x => x.EnergyStart)
                 .InclusiveBetween(1, 10).WithMessage("Energy start level must be between 1 and 10.");
 
-            RuleFor(x => x.Steps)
-                .NotEmpty().WithMessage("At least one step is required.")
-                .Must(s => s.Count <= 20).WithMessage("Maximum 20 steps allowed per session.");
-
-            RuleForEach(x => x.Steps).ChildRules(step =>
+            
+            When(x => x.Steps != null && x.Steps.Any(), () =>
             {
-                step.RuleFor(s => s.Description)
-                    .NotEmpty().WithMessage("Step description is required.")
-                    .MaximumLength(300).WithMessage("Step description cannot exceed 300 characters.");
+                RuleFor(x => x.Steps)
+                    .Must(s => s!.Count <= 20).WithMessage("Maximum 20 steps allowed per session.");
 
-                step.RuleFor(s => s.DurationMinutes)
-                    .GreaterThan(0).WithMessage("Step duration must be greater than 0.")
-                    .LessThanOrEqualTo(120).WithMessage("Step duration cannot exceed 2 hours.");
+                RuleForEach(x => x.Steps).ChildRules(step =>
+                {
+                    step.RuleFor(s => s.Description)
+                        .NotEmpty().WithMessage("Step description is required.")
+                        .MaximumLength(300).WithMessage("Step description cannot exceed 300 characters.");
+
+                    step.RuleFor(s => s.DurationMinutes)
+                        .GreaterThan(0).WithMessage("Step duration must be greater than 0.")
+                        .LessThanOrEqualTo(120).WithMessage("Step duration cannot exceed 2 hours.");
+                });
             });
         }
     }

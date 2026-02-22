@@ -10,7 +10,13 @@ namespace Application.StudySessions.Commands.CreateStudySession
         string SessionGoal,
         int PlannedMinutes,
         int EnergyStart,
-        List<CreateStudySessionStepRequest> Steps
+        // AI-kontext — sparas INTE i databasen, används bara för att generera steg
+        int DifficultyLevel,
+        int MotivationLevel,
+        string? LearningChallenges,
+        string? StudyEnvironment,
+        string? AdditionalContext,
+        List<CreateStudySessionStepRequest>? Steps
     ) : IRequest<OperationResult<StudySessionDto>>;
 }
 

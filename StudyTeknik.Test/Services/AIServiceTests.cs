@@ -15,7 +15,7 @@ namespace StudyTeknik.Test.Services
             var mockConfig = new Mock<IConfiguration>();
             mockConfig.Setup(c => c["GoogleAI:ApiKey"]).Returns("fake-key");
 
-            var service = new AIService(mockConfig.Object);
+            var service = new AiService(mockConfig.Object);
             var emptyText = "";
 
             // Act
@@ -32,7 +32,7 @@ namespace StudyTeknik.Test.Services
             var mockConfig = new Mock<IConfiguration>();
             mockConfig.Setup(c => c["GoogleAI:ApiKey"]).Returns("fake-key");
 
-            var service = new AIService(mockConfig.Object);
+            var service = new AiService(mockConfig.Object);
             string nullText = null;
 
             // Act

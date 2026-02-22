@@ -152,7 +152,7 @@ public partial class Program
         builder.Services.AddScoped<IStudentProfileRepository, StudentProfileRepository>();
         
         //AIService (inga ändringar här)
-        builder.Services.AddScoped<IAIService, AIService>();
+        builder.Services.AddScoped<IAIService, AiService>();
 
         // AuthZ (inga ändringar här)
         builder.Services.AddAuthorization(options =>
