@@ -38,7 +38,12 @@ namespace StudyTeknik.Controllers
                 request.SessionGoal,
                 request.PlannedMinutes,
                 request.EnergyStart,
-                request.Steps
+                request.DifficultyLevel,    
+                request.MotivationLevel,    
+                request.LearningChallenges, 
+                request.StudyEnvironment,   
+                request.AdditionalContext,  
+                request.Steps ?? new List<CreateStudySessionStepRequest>() 
             );
 
             var result = await _mediator.Send(command, ct);
