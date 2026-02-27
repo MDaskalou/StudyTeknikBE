@@ -40,6 +40,8 @@ namespace StudyTeknik.Controllers
 
             return Ok(result.Value);
         }
+        
+       
 
         // --- 2. POST: Skapa profil ---
         // URL: POST api/student-profiles
