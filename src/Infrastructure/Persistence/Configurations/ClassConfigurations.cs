@@ -11,7 +11,7 @@ namespace Infrastructure.Persistence.Configurations
     {
         public void Configure(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<ClassEntity> builder)
         {
-            builder.ToTable("Classes");
+            builder.ToTable("classes");
             builder.HasKey(c => c.Id);
             builder.Property(c => c.Id).ValueGeneratedNever();
 

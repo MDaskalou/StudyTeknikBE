@@ -8,7 +8,7 @@ namespace Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<StudentProfileEntity> builder)
         {
-            builder.ToTable("StudentProfiles");
+            builder.ToTable("studentProfiles");
             builder.HasKey(x => x.Id);
 
             // Relation: En User har en StudentProfile

@@ -48,7 +48,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AuditLogs", (string)null);
+                    b.ToTable("auditLogs", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.ClassEntity", b =>
@@ -88,7 +88,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("SchoolName", "Year", "ClassName")
                         .IsUnique();
 
-                    b.ToTable("Classes", (string)null);
+                    b.ToTable("classes", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.CourseEntity", b =>
@@ -122,7 +122,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("StudentProfileId");
 
-                    b.ToTable("Courses", (string)null);
+                    b.ToTable("courses", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.DeckEntity", b =>
@@ -189,7 +189,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("StudentId", "EntryDate")
                         .IsUnique();
 
-                    b.ToTable("DiaryEntries", (string)null);
+                    b.ToTable("diaryEntries", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.EnrollmentEntity", b =>
@@ -282,7 +282,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("MentorId", "StudentId")
                         .IsUnique();
 
-                    b.ToTable("MentorAssigments", (string)null);
+                    b.ToTable("mentorAssigments", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.StudentProfileEntity", b =>
@@ -314,7 +314,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("StudentId")
                         .IsUnique();
 
-                    b.ToTable("StudentProfiles", (string)null);
+                    b.ToTable("studentProfiles", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.StudyGoalsEntity", b =>
@@ -411,7 +411,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("StudySessionId");
 
-                    b.ToTable("StudySessionSteps", (string)null);
+                    b.ToTable("studySessionSteps", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.StudySessionsEntity", b =>
@@ -466,7 +466,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("StudySessions", (string)null);
+                    b.ToTable("studySessions", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.UserEntity", b =>
@@ -525,7 +525,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("Role");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("users", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.WeeklySummaryEntity", b =>
@@ -558,7 +558,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("StudentId", "YearWeek")
                         .IsUnique();
 
-                    b.ToTable("WeeklySummaries", (string)null);
+                    b.ToTable("weeklySummaries", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.CourseEntity", b =>

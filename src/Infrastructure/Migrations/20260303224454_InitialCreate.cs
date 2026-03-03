@@ -12,7 +12,7 @@ namespace Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "AuditLogs",
+                name: "auditLogs",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -24,11 +24,11 @@ namespace Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AuditLogs", x => x.Id);
+                    table.PrimaryKey("PK_auditLogs", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Classes",
+                name: "classes",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -42,11 +42,11 @@ namespace Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Classes", x => x.Id);
+                    table.PrimaryKey("PK_classes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "DiaryEntries",
+                name: "diaryEntries",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -58,7 +58,7 @@ namespace Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_DiaryEntries", x => x.Id);
+                    table.PrimaryKey("PK_diaryEntries", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -77,7 +77,7 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "MentorAssigments",
+                name: "mentorAssigments",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -88,11 +88,11 @@ namespace Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_MentorAssigments", x => x.Id);
+                    table.PrimaryKey("PK_mentorAssigments", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Users",
+                name: "users",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -111,11 +111,11 @@ namespace Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Users", x => x.Id);
+                    table.PrimaryKey("PK_users", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "WeeklySummaries",
+                name: "weeklySummaries",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -127,7 +127,7 @@ namespace Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_WeeklySummaries", x => x.Id);
+                    table.PrimaryKey("PK_weeklySummaries", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -146,15 +146,15 @@ namespace Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_Decks", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Decks_Users_UserId",
+                        name: "FK_Decks_users_UserId",
                         column: x => x.UserId,
-                        principalTable: "Users",
+                        principalTable: "users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "StudentProfiles",
+                name: "studentProfiles",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -167,11 +167,11 @@ namespace Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StudentProfiles", x => x.Id);
+                    table.PrimaryKey("PK_studentProfiles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_StudentProfiles_Users_StudentId",
+                        name: "FK_studentProfiles_users_StudentId",
                         column: x => x.StudentId,
-                        principalTable: "Users",
+                        principalTable: "users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -202,7 +202,7 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Courses",
+                name: "courses",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -215,11 +215,11 @@ namespace Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Courses", x => x.Id);
+                    table.PrimaryKey("PK_courses", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Courses_StudentProfiles_StudentProfileId",
+                        name: "FK_courses_studentProfiles_StudentProfileId",
                         column: x => x.StudentProfileId,
-                        principalTable: "StudentProfiles",
+                        principalTable: "studentProfiles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -239,20 +239,20 @@ namespace Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_StudyGoals", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_StudyGoals_Courses_CourseId",
+                        name: "FK_StudyGoals_courses_CourseId",
                         column: x => x.CourseId,
-                        principalTable: "Courses",
+                        principalTable: "courses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_StudyGoals_Users_UserId",
+                        name: "FK_StudyGoals_users_UserId",
                         column: x => x.UserId,
-                        principalTable: "Users",
+                        principalTable: "users",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "StudySessions",
+                name: "studySessions",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -271,17 +271,17 @@ namespace Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StudySessions", x => x.Id);
+                    table.PrimaryKey("PK_studySessions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_StudySessions_Courses_CourseId",
+                        name: "FK_studySessions_courses_CourseId",
                         column: x => x.CourseId,
-                        principalTable: "Courses",
+                        principalTable: "courses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_StudySessions_Users_UserId",
+                        name: "FK_studySessions_users_UserId",
                         column: x => x.UserId,
-                        principalTable: "Users",
+                        principalTable: "users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -308,7 +308,7 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "StudySessionSteps",
+                name: "studySessionSteps",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -322,29 +322,29 @@ namespace Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_StudySessionSteps", x => x.Id);
+                    table.PrimaryKey("PK_studySessionSteps", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_StudySessionSteps_StudySessions_StudySessionId",
+                        name: "FK_studySessionSteps_studySessions_StudySessionId",
                         column: x => x.StudySessionId,
-                        principalTable: "StudySessions",
+                        principalTable: "studySessions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Classes_SchoolName_Year_ClassName",
-                table: "Classes",
+                name: "IX_classes_SchoolName_Year_ClassName",
+                table: "classes",
                 columns: new[] { "SchoolName", "Year", "ClassName" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Classes_TeacherId",
-                table: "Classes",
+                name: "IX_classes_TeacherId",
+                table: "classes",
                 column: "TeacherId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Courses_StudentProfileId",
-                table: "Courses",
+                name: "IX_courses_StudentProfileId",
+                table: "courses",
                 column: "StudentProfileId");
 
             migrationBuilder.CreateIndex(
@@ -353,8 +353,8 @@ namespace Infrastructure.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_DiaryEntries_StudentId_EntryDate",
-                table: "DiaryEntries",
+                name: "IX_diaryEntries_StudentId_EntryDate",
+                table: "diaryEntries",
                 columns: new[] { "StudentId", "EntryDate" },
                 unique: true);
 
@@ -375,14 +375,14 @@ namespace Infrastructure.Migrations
                 column: "NextReviewAtUtc");
 
             migrationBuilder.CreateIndex(
-                name: "IX_MentorAssigments_MentorId_StudentId",
-                table: "MentorAssigments",
+                name: "IX_mentorAssigments_MentorId_StudentId",
+                table: "mentorAssigments",
                 columns: new[] { "MentorId", "StudentId" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_StudentProfiles_StudentId",
-                table: "StudentProfiles",
+                name: "IX_studentProfiles_StudentId",
+                table: "studentProfiles",
                 column: "StudentId",
                 unique: true);
 
@@ -402,44 +402,44 @@ namespace Infrastructure.Migrations
                 column: "StudyGoalId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_StudySessions_CourseId",
-                table: "StudySessions",
+                name: "IX_studySessions_CourseId",
+                table: "studySessions",
                 column: "CourseId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_StudySessions_Status",
-                table: "StudySessions",
+                name: "IX_studySessions_Status",
+                table: "studySessions",
                 column: "Status");
 
             migrationBuilder.CreateIndex(
-                name: "IX_StudySessions_UserId",
-                table: "StudySessions",
+                name: "IX_studySessions_UserId",
+                table: "studySessions",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_StudySessionSteps_OrderIndex",
-                table: "StudySessionSteps",
+                name: "IX_studySessionSteps_OrderIndex",
+                table: "studySessionSteps",
                 column: "OrderIndex");
 
             migrationBuilder.CreateIndex(
-                name: "IX_StudySessionSteps_StudySessionId",
-                table: "StudySessionSteps",
+                name: "IX_studySessionSteps_StudySessionId",
+                table: "studySessionSteps",
                 column: "StudySessionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_Email",
-                table: "Users",
+                name: "IX_users_Email",
+                table: "users",
                 column: "Email",
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_Role",
-                table: "Users",
+                name: "IX_users_Role",
+                table: "users",
                 column: "Role");
 
             migrationBuilder.CreateIndex(
-                name: "IX_WeeklySummaries_StudentId_YearWeek",
-                table: "WeeklySummaries",
+                name: "IX_weeklySummaries_StudentId_YearWeek",
+                table: "weeklySummaries",
                 columns: new[] { "StudentId", "YearWeek" },
                 unique: true);
         }
@@ -448,13 +448,13 @@ namespace Infrastructure.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AuditLogs");
+                name: "auditLogs");
 
             migrationBuilder.DropTable(
-                name: "Classes");
+                name: "classes");
 
             migrationBuilder.DropTable(
-                name: "DiaryEntries");
+                name: "diaryEntries");
 
             migrationBuilder.DropTable(
                 name: "Enrollments");
@@ -463,16 +463,16 @@ namespace Infrastructure.Migrations
                 name: "FlashCards");
 
             migrationBuilder.DropTable(
-                name: "MentorAssigments");
+                name: "mentorAssigments");
 
             migrationBuilder.DropTable(
                 name: "StudyPlanTasks");
 
             migrationBuilder.DropTable(
-                name: "StudySessionSteps");
+                name: "studySessionSteps");
 
             migrationBuilder.DropTable(
-                name: "WeeklySummaries");
+                name: "weeklySummaries");
 
             migrationBuilder.DropTable(
                 name: "Decks");
@@ -481,16 +481,16 @@ namespace Infrastructure.Migrations
                 name: "StudyGoals");
 
             migrationBuilder.DropTable(
-                name: "StudySessions");
+                name: "studySessions");
 
             migrationBuilder.DropTable(
-                name: "Courses");
+                name: "courses");
 
             migrationBuilder.DropTable(
-                name: "StudentProfiles");
+                name: "studentProfiles");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "users");
         }
     }
 }

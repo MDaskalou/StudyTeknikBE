@@ -8,7 +8,7 @@ namespace Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<MentorAssigmentEntity> builder)
         {
-            builder.ToTable("MentorAssigments");
+            builder.ToTable("mentorAssigments");
 
             builder.HasKey(ma => ma.Id);
             

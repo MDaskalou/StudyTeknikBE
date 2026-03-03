@@ -8,7 +8,7 @@ namespace Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<CourseEntity> builder)
         {
-            builder.ToTable("Courses"); // Namnet på tabellen i SQL
+            builder.ToTable("courses"); // Namnet på tabellen i SQL
 
             builder.HasKey(x => x.Id);
 

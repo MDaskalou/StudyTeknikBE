@@ -23,7 +23,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
         {
             public void Configure(EntityTypeBuilder<UserEntity> builder)
             {
-                builder.ToTable("Users");
+                builder.ToTable("users");
 
                 builder.HasKey(u => u.Id);
                 builder.Property(u => u.Id).ValueGeneratedNever(); // behåll om du sätter Guid i kod
