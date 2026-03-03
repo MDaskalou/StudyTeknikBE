@@ -1,4 +1,4 @@
-﻿﻿﻿﻿using Application.Abstractions;                    // IDateTimeProvider, IAuditLogger
+﻿using Application.Abstractions;                    // IDateTimeProvider, IAuditLogger
 using Application.Abstractions.IPersistence;       // IAppDbContext
 using Application.Abstractions.IPersistence.Repositories;
 using Application.Student.Repository;
@@ -9,9 +9,9 @@ using Application.Teacher.Repository; // repo-interfacen (Application-lagret)
 using Infrastructure.Persistence;                  // AppDbContext
 using Infrastructure.Persistence.Repositories;     // repo-implementationer (Infrastructure)
 using Infrastructure.Service;                      // DateTimeProvider, AuditLogger
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.DependencyInjection
 {
@@ -29,10 +29,9 @@ namespace Infrastructure.DependencyInjection
                      ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found");
 
             services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(cs, sql =>
+                options.UseNpgsql(cs, npgsql =>
                 {
-                    // Sätter migrations-assembly = Infrastructure (där AppDbContext finns)
-                    sql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName);
+                    npgsql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName);
                 }));
 
             // 2) Binda abstraktionen IAppDbContext till samma instans av AppDbContext (Scoped per request)

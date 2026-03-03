@@ -164,7 +164,7 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StudentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PlanningHorizonWeeks = table.Column<int>(type: "int", nullable: false),
                     WakeUpTime = table.Column<TimeSpan>(type: "time", nullable: false),
                     BedTime = table.Column<TimeSpan>(type: "time", nullable: false),
@@ -175,8 +175,8 @@ namespace Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_StudentProfiles", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_StudentProfiles_Users_UserId",
-                        column: x => x.UserId,
+                        name: "FK_StudentProfiles_Users_StudentId",
+                        column: x => x.StudentId,
                         principalSchema: "dbo",
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -190,8 +190,8 @@ namespace Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    FrontText = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
-                    BackText = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    FrontText = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    BackText = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     NextReviewAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
                     DeckId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Interval = table.Column<int>(type: "int", nullable: false),
@@ -205,7 +205,7 @@ namespace Infrastructure.Migrations
                         column: x => x.DeckId,
                         principalTable: "Decks",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -266,11 +266,16 @@ namespace Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CourseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    TaskDescription = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
-                    WorkDurationMinutes = table.Column<int>(type: "int", nullable: false),
-                    WorkFeedback = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    BreakFeedback = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                    SessionGoal = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    StartDateUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDateUtc = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    PlannedMinutes = table.Column<int>(type: "int", nullable: false),
+                    ActualMinutes = table.Column<int>(type: "int", nullable: false),
+                    EnergyStart = table.Column<int>(type: "int", nullable: false),
+                    EnergyEnd = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -279,13 +284,15 @@ namespace Infrastructure.Migrations
                         name: "FK_StudySessions_Courses_CourseId",
                         column: x => x.CourseId,
                         principalTable: "Courses",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_StudySessions_Users_UserId",
                         column: x => x.UserId,
                         principalSchema: "dbo",
                         principalTable: "Users",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -305,6 +312,30 @@ namespace Infrastructure.Migrations
                         name: "FK_StudyPlanTasks_StudyGoals_StudyGoalId",
                         column: x => x.StudyGoalId,
                         principalTable: "StudyGoals",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "StudySessionSteps",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StudySessionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OrderIndex = table.Column<int>(type: "int", nullable: false),
+                    StepType = table.Column<int>(type: "int", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: false),
+                    DurationMinutes = table.Column<int>(type: "int", nullable: false),
+                    IsCompleted = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAtUtc = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StudySessionSteps", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_StudySessionSteps_StudySessions_StudySessionId",
+                        column: x => x.StudySessionId,
+                        principalTable: "StudySessions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -360,9 +391,9 @@ namespace Infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_StudentProfiles_UserId",
+                name: "IX_StudentProfiles_StudentId",
                 table: "StudentProfiles",
-                column: "UserId",
+                column: "StudentId",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -386,9 +417,24 @@ namespace Infrastructure.Migrations
                 column: "CourseId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_StudySessions_Status",
+                table: "StudySessions",
+                column: "Status");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_StudySessions_UserId",
                 table: "StudySessions",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StudySessionSteps_OrderIndex",
+                table: "StudySessionSteps",
+                column: "OrderIndex");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StudySessionSteps_StudySessionId",
+                table: "StudySessionSteps",
+                column: "StudySessionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Email",
@@ -436,7 +482,7 @@ namespace Infrastructure.Migrations
                 name: "StudyPlanTasks");
 
             migrationBuilder.DropTable(
-                name: "StudySessions");
+                name: "StudySessionSteps");
 
             migrationBuilder.DropTable(
                 name: "WeeklySummaries");
@@ -446,6 +492,9 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "StudyGoals");
+
+            migrationBuilder.DropTable(
+                name: "StudySessions");
 
             migrationBuilder.DropTable(
                 name: "Courses");
