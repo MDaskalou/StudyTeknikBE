@@ -26,6 +26,7 @@ using Infrastructure.Service;
 using Infrastructure.Persistence.Repositories; 
 using Application.Common.Behaviors;
 using Application.StudentProfiles.IRepository;
+using Microsoft.EntityFrameworkCore;
 
 namespace StudyTeknik;
 
@@ -184,6 +185,19 @@ public partial class Program
         });
 
         var app = builder.Build();
+        
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            Console.WriteLine("🔄 Running database migrations...");
+            db.Database.Migrate();
+            Console.WriteLine("✅ Database migrations complete.");
+        }
+
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseHttpsRedirection();
+        }
 
         // Pipeline
         if (app.Environment.IsDevelopment())
@@ -196,11 +210,7 @@ public partial class Program
             var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
             await DatabaseSeeder.SeedAsync(db, logger);
         }
-
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseHttpsRedirection();
-        }
+        
         
         
         app.UseCors(policy => 
