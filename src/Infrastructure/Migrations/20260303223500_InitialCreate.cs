@@ -11,9 +11,6 @@ namespace Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.EnsureSchema(
-                name: "dbo");
-
             migrationBuilder.CreateTable(
                 name: "AuditLogs",
                 columns: table => new
@@ -50,7 +47,6 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "DiaryEntries",
-                schema: "dbo",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -97,7 +93,6 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Users",
-                schema: "dbo",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -153,7 +148,6 @@ namespace Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_Decks_Users_UserId",
                         column: x => x.UserId,
-                        principalSchema: "dbo",
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -177,7 +171,6 @@ namespace Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_StudentProfiles_Users_StudentId",
                         column: x => x.StudentId,
-                        principalSchema: "dbo",
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -254,7 +247,6 @@ namespace Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_StudyGoals_Users_UserId",
                         column: x => x.UserId,
-                        principalSchema: "dbo",
                         principalTable: "Users",
                         principalColumn: "Id");
                 });
@@ -289,7 +281,6 @@ namespace Infrastructure.Migrations
                     table.ForeignKey(
                         name: "FK_StudySessions_Users_UserId",
                         column: x => x.UserId,
-                        principalSchema: "dbo",
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -363,7 +354,6 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_DiaryEntries_StudentId_EntryDate",
-                schema: "dbo",
                 table: "DiaryEntries",
                 columns: new[] { "StudentId", "EntryDate" },
                 unique: true);
@@ -438,14 +428,12 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Email",
-                schema: "dbo",
                 table: "Users",
                 column: "Email",
                 unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Role",
-                schema: "dbo",
                 table: "Users",
                 column: "Role");
 
@@ -466,8 +454,7 @@ namespace Infrastructure.Migrations
                 name: "Classes");
 
             migrationBuilder.DropTable(
-                name: "DiaryEntries",
-                schema: "dbo");
+                name: "DiaryEntries");
 
             migrationBuilder.DropTable(
                 name: "Enrollments");
@@ -503,8 +490,7 @@ namespace Infrastructure.Migrations
                 name: "StudentProfiles");
 
             migrationBuilder.DropTable(
-                name: "Users",
-                schema: "dbo");
+                name: "Users");
         }
     }
 }

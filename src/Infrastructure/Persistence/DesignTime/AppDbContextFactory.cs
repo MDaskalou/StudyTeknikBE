@@ -32,7 +32,7 @@ namespace Infrastructure.Persistence.DesignTime
 
             var options = new DbContextOptionsBuilder<AppDbContext>()
                 .UseSqlServer(conn, sql => 
-                    sql.MigrationsHistoryTable("__EFMigrationsHistory", "dbo"))
+                    sql.MigrationsHistoryTable("__EFMigrationsHistory"))
                 .Options;
 
             return new AppDbContext(options);

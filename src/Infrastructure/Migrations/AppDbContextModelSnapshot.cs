@@ -189,7 +189,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("StudentId", "EntryDate")
                         .IsUnique();
 
-                    b.ToTable("DiaryEntries", "dbo");
+                    b.ToTable("DiaryEntries", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.EnrollmentEntity", b =>
@@ -525,7 +525,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("Role");
 
-                    b.ToTable("Users", "dbo");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.WeeklySummaryEntity", b =>
