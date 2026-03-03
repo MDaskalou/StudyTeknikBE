@@ -197,7 +197,12 @@ public partial class Program
             await DatabaseSeeder.SeedAsync(db, logger);
         }
 
-        app.UseHttpsRedirection();
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseHttpsRedirection();
+        }
+        
+        
         app.UseCors(policy => 
             policy.WithOrigins("https://studyteknik.netlify.app", "http://localhost:3000")
                 .AllowAnyMethod()
