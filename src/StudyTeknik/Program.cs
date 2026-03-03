@@ -198,17 +198,12 @@ public partial class Program
         }
 
         app.UseHttpsRedirection();
-        app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+        app.UseCors(policy => 
+            policy.WithOrigins("https://studyteknik.netlify.app", "http://localhost:3000")
+                .AllowAnyMethod()
+                .AllowAnyHeader()
+                .AllowCredentials()); // Tillåt credentials om du skickar tokens i headers/cookies
         
-       // if (app.Environment.IsDevelopment())
-       // {
-       //     app.UseDevelopmentAuthentication();
-            
-        //}
-        //else
-        //{
-            //app.UseAuthentication(); 
-       // }
        
         // 🔐 Global Exception Handler - MÅSTE vara först i pipeline!
         app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
