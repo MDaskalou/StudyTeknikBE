@@ -220,6 +220,11 @@ public partial class Program
         
         app.UseMiddleware<ForbiddenLoggingMiddleware>();
         app.MapControllers();
+        app.MapGet("/", () => Results.Ok()); 
+
+        
+        var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+        app.Urls.Add($"http://0.0.0.0:{port}");
 
         app.Run();
 
