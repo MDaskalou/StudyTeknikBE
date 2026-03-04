@@ -193,13 +193,13 @@ public partial class Program
 
         var app = builder.Build();
         
-        //using (var scope = app.Services.CreateScope())
-        //{
-         //   var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-         //   Console.WriteLine("🔄 Running database migrations...");
-        //    db.Database.Migrate();
-         //   Console.WriteLine("✅ Database migrations complete.");
-        //}
+        using (var scope = app.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            Console.WriteLine("🔄 Running database migrations...");
+            db.Database.Migrate();
+            Console.WriteLine("✅ Database migrations complete.");
+        }
 
         if (app.Environment.IsDevelopment())
         {
