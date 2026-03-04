@@ -20,6 +20,7 @@ using System.Linq;
 using Application.Student.Repository;
 using Infrastructure.Persistence.Repositories;
 using System.IdentityModel.Tokens.Jwt;
+using System.Text.Json;
 using Application.Abstractions.IPersistence;
 using Application.Decks.IRepository;
 using Infrastructure.Service;
@@ -80,6 +81,12 @@ public partial class Program
             
             // 🔑 KRITISKT: Rensa default claim type mappning så att "sub" behålls intakt
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+            
+            builder.Services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                });
             
             // AuthN
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -186,13 +193,13 @@ public partial class Program
 
         var app = builder.Build();
         
-        using (var scope = app.Services.CreateScope())
-        {
-            var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            Console.WriteLine("🔄 Running database migrations...");
-            db.Database.Migrate();
-            Console.WriteLine("✅ Database migrations complete.");
-        }
+        //using (var scope = app.Services.CreateScope())
+        //{
+         //   var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+         //   Console.WriteLine("🔄 Running database migrations...");
+        //    db.Database.Migrate();
+         //   Console.WriteLine("✅ Database migrations complete.");
+        //}
 
         if (app.Environment.IsDevelopment())
         {
