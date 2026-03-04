@@ -8,7 +8,7 @@ namespace Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<StudySessionStepEntity> builder)
         {
-            builder.ToTable("studySessionSteps");
+            builder.ToTable("studysessionsteps");
             builder.HasKey(x => x.Id);
 
             // Properties

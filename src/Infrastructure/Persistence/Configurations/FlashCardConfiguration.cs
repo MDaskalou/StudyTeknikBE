@@ -8,6 +8,7 @@ namespace Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<FlashCardEntity> builder)
         {
+            builder.ToTable("flashcards");
             builder.HasKey(fcard => fcard.Id);
 
             builder.Property(fcard => fcard.Id);

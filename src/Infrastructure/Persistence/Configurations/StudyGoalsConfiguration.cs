@@ -8,6 +8,7 @@ namespace Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<StudyGoalsEntity> builder)
         {
+            builder.ToTable("studygoals");
             builder.HasKey(sg => sg.Id);
             
             builder.Property(sg => sg.GoalDescription)

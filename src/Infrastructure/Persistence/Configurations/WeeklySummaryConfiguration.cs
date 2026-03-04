@@ -13,7 +13,7 @@ namespace Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<WeeklySummaryEntity> builder)
         {
-            builder.ToTable("weeklySummaries");
+            builder.ToTable("weeklysummaries");
 
             builder.HasKey(ws => ws.Id);
             

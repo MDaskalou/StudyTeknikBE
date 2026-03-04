@@ -13,7 +13,7 @@ namespace Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<DiaryEntity> builder)
         {
-            builder.ToTable("diaryEntries");
+            builder.ToTable("diaryentries");
             builder.HasKey(de => de.Id);
             builder.Property(de => de.Id).ValueGeneratedNever();
             builder.Property(de => de.StudentId).IsRequired();

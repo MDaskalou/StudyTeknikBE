@@ -40,6 +40,15 @@ namespace Infrastructure.Persistence
             // Plockar upp alla *Configuration.cs i Infrastructure.Persistence.Configurations
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
             base.OnModelCreating(modelBuilder);
+            
+            foreach (var entity in modelBuilder.Model.GetEntityTypes())
+            {
+                var currentTableName = entity.GetTableName();
+                if (currentTableName != null)
+                {
+                    entity.SetTableName(currentTableName.ToLower());
+                }
+            }
 
         }
         

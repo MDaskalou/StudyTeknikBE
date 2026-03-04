@@ -12,6 +12,7 @@ namespace Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<EnrollmentEntity> builder)
         {
+            builder.ToTable("enrollments");
             builder.HasKey(e => e.Id);
             builder.Property(e => e.Id).ValueGeneratedNever();
             

@@ -8,7 +8,7 @@ namespace Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<StudyPlanTasksEntity> builder)
         {
-            // Bytte variabelnamn från sg -> t för tydlighet
+            builder.ToTable("studyplantasks");
             builder.HasKey(t => t.Id);
             
             builder.Property(t => t.Description)

@@ -8,6 +8,7 @@ namespace Infrastructure.Persistence.Configurations
     {
         public void Configure(EntityTypeBuilder<DeckEntity> builder)
         {
+            builder.ToTable("decks");
             builder.HasKey(deck => deck.Id);
             builder.Property(deck => deck.Title)
                 .HasMaxLength(100)
