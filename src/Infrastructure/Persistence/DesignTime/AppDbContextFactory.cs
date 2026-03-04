@@ -27,11 +27,11 @@ namespace Infrastructure.Persistence.DesignTime
                 .AddEnvironmentVariables()
                 .Build();
 
-            var conn = cfg.GetConnectionString("DefaultConnection")
-                       ?? "Server=(localdb)\\MSSQLLocalDB;Database=StudyTeknikDB;Trusted_Connection=True;TrustServerCertificate=True";
-
+            var conn = cfg.GetConnectionString("DefaultConnection") 
+                       ?? throw new InvalidOperationException("DefaultConnection not found in configuration.");
+            
             var options = new DbContextOptionsBuilder<AppDbContext>()
-                .UseSqlServer(conn, sql => 
+                .UseNpgsql(conn, sql => 
                     sql.MigrationsHistoryTable("__EFMigrationsHistory"))
                 .Options;
 
