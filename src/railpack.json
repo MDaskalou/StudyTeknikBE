@@ -1,8 +1,0 @@
-﻿{
-  "build": {
-    "command": "dotnet publish src/MaisonCalliard.Api/MaisonCalliard.Api.csproj -c Release -o out"
-  },
-  "deploy": {
-    "command": "dotnet out/MaisonCalliard.Api.dll"
-  }
-}
