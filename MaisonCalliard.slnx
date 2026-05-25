@@ -4,6 +4,7 @@
     <Project Path="src/MaisonCalliard.Application/MaisonCalliard.Application.csproj" />
     <Project Path="src/MaisonCalliard.Domain/MaisonCalliard.Domain.csproj" />
     <Project Path="src/MaisonCalliard.Infrastructure/MaisonCalliard.Infrastructure.csproj" />
+    <File Path="src\railpack.json" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/MaisonCalliard.UnitTests/MaisonCalliard.UnitTests.csproj" />
