@@ -1,0 +1,125 @@
+# Mock- och seed-data: namnkonventioner (Maison Caillard)
+
+Detta dokument beskriver hur **variabler, listor och seed-klasser** ska namnges i backend (och ev. testprojekt) så att mockdata är lätt att skilja från produktionslogik och från varandra.
+
+**Sanning för fält och endpoints:** [src/types.ts](src/types.ts) och [backend_endpoints.md](backend_endpoints.md).
+
+---
+
+## Syfte och tre typer av data
+
+| Typ | Syfte | Typiskt namn / plats |
+| :--- | :--- | :--- |
+| **Mock** | Fake-data under utveckling eller demos | Prefix `Mock_` eller klass `*Mock*` |
+| **Seed** | Startdata som laddas vid migration eller appstart | Prefix `Seed_` eller klass `*SeedData*` |
+| **Fixture** | Fasta värden i enhetstester | Prefix `Fixture_` eller klass `*TestFixtures*` |
+
+Använd **en** konsekvent familj per repo (t.ex. alltid `Mock_` för dev-json och `Fixture_` bara i testprojekt).
+
+---
+
+## Regler (kort)
+
+1. **Engelska** i identifierare (`Mock_MenuItem_Baguette`). Svenska/franska **endast i strängvärden** (namn på bröd, rubriker).
+2. **Prefix först**, sedan **entitet**, sedan **scenario eller unikt id**:
+   - `Mock_<Entity>_<ScenarioOrSku>`
+3. **Separera domäner** — samma ord i olika API:er ska inte betyda samma sak i variabelnamn:
+   - **Menu** = serveringsmeny (`/api/menu`, `MenuItem`, kategorier `Sandwich` \| `Pastry` \| `Bread`).
+   - **Product** = förbeställningsbara artiklar (`/api/products`, `Product`, t.ex. `Cake`).
+   - **Order**, **News** = egna prefix; blanda inte listor utan tydlig etikett.
+
+---
+
+## Exempel: menyn (på plats)
+
+```text
+Mock_MenuItem_SandwichJambonBeurre
+Mock_MenuItem_PastryPainAuChocolat
+Mock_MenuItem_BreadSourdoughLoaf
+Mock_MenuItems_AllCategories_DefaultSet
+Seed_MenuItems_MinimalLunchMenu
+```
+
+---
+
+## Exempel: produkter (shop / förbeställning)
+
+```text
+Mock_Product_CakeEntremetStrawberry
+Mock_Product_PastryCroissantBoxSix
+Mock_Products_FilterVeganOnly
+Seed_Products_DefaultCatalog
+```
+
+---
+
+## Exempel: ordrar och rader
+
+```text
+Mock_Order_PendingPickup_Molndal
+Mock_Order_Paid_SingleCartLine
+Mock_CartLine_ProductCakeWithSizeLabel
+Mock_CustomerEmail_DevInbox
+Mock_StripeSessionId_CheckoutTestPrefix
+```
+
+---
+
+## Exempel: nyheter
+
+```text
+Mock_NewsItem_SeasonalPromotionWinter
+Mock_NewsItems_ActiveHeroCarouselOnly
+```
+
+---
+
+## C#: gruppera i statiska klasser
+
+I stället för många globala variabler — **namespace + klass** bär huvuddelen av meningen; medlemmar kan heta kortare.
+
+```csharp
+namespace MaisonCaillard.Data.Seed;
+
+public static class MaisonCaillardMenuSeedData
+{
+    public static readonly MenuItem Mock_MenuItem_SandwichJambonBeurre = new()
+    {
+        Id = "menu-seed-sandwich-001",
+        // … fält enligt MenuItem / API
+    };
+
+    public static readonly IReadOnlyList<MenuItem> Items =
+    [
+        Mock_MenuItem_SandwichJambonBeurre,
+        // …
+    ];
+}
+```
+
+Samma mönster för `MaisonCaillardProductSeedData`, `MaisonCaillardOrderTestFixtures`, osv.
+
+---
+
+## JSON-filer (om seed ligger som filer)
+
+Filnamn speglar domän + syfte, t.ex.:
+
+- `seed-menu-items.json`
+- `mock-orders-pending.json`
+
+Inuti filen: använd tydliga `id`-strängar (t.ex. `menu-seed-…`, `order-mock-…`) så de inte krockar med riktiga UUID i produktion.
+
+---
+
+## Undvik
+
+- Generiska namn: `data`, `items`, `list1`, `test`, `temp`.
+- Samma variabelnamn för menyrad respektive produkt utan prefix (`items` för båda).
+- Blandad svensk/engelska i **identifierare** (`mockSmörgås`).
+
+---
+
+## Versionshistorik
+
+Skriv en rad här när konventionen ändras (datum + kort vad som ändrats).

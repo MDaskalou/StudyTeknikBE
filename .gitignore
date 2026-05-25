@@ -1,0 +1,19 @@
+### .NET / C# specifikt ###
+# Ignorera kompilerade filer (de byggs på nytt varje gång)
+bin/
+obj/
+
+# Lokala användarinställningar
+*.user
+*.useros
+*.suo
+
+### Hemligheter, Keys och Konfiguration ###
+# Här lägger du filer som innehåller faktiska API-nycklar och databassträngar
+.env
+.env.*
+appsettings.Development.json
+appsettings.Local.json
+
+# Ignorera Claude/AI-verktygens tillfälliga filer (eftersom du har en .claude-mapp)
+.claude/
