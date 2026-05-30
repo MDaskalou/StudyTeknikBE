@@ -4,5 +4,6 @@ public enum MenuCategory
 {
     Sandwich,
     Pastry,
-    Bread
+    Bread,
+    Drink
 }

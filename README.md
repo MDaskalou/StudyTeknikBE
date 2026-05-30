@@ -234,6 +234,28 @@ Before you can run it, update appsettings.json:
 
 Then run: dotnet ef database update --project src/MaisonCalliard.Infrastructure --startup-project src/MaisonCalliard.Api
 
+## Deploy med Netlify-frontend
+
+Backend tillater bara frontend-domaner som finns i CORS-konfigurationen. Nar frontenden ligger pa Netlify behover backendens deploy-miljo darfor ha din Netlify-origin utan trailing slash:
+
+```txt
+Cors__AllowedOriginsCsv=https://din-site.netlify.app
+```
+
+Flera origins kan anges kommaseparerat, till exempel:
+
+```txt
+Cors__AllowedOriginsCsv=https://din-site.netlify.app,https://www.maisoncalliard.com
+```
+
+Satt ocksa backendens publika URL sa uppladdade bildlankar och Stripe-redirects inte pekar mot localhost:
+
+```txt
+App__BaseUrl=https://din-backend-url
+```
+
+I Netlify-frontenden ska API-basens miljovariabel peka mot samma backend-URL, inte mot `localhost`.
+
 ### Orderbekräftelse (Resend)
 
 Efter lyckad betalning skickas ett HTML-mail via Resend (idempotent). Se [docs/order-receipt-testing.md](docs/order-receipt-testing.md) för test med Stripe CLI och Resend i testläge.

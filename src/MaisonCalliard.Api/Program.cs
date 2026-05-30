@@ -95,7 +95,7 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+        var allowedOrigins = GetAllowedOrigins(builder.Configuration);
         policy.WithOrigins(allowedOrigins)
             .AllowAnyHeader()
             .AllowAnyMethod();
@@ -120,3 +120,27 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+static string[] GetAllowedOrigins(IConfiguration configuration)
+{
+    var origins = new List<string>();
+
+    origins.AddRange(configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? []);
+    origins.AddRange(SplitOrigins(configuration["Cors:AllowedOrigins"]));
+    origins.AddRange(SplitOrigins(configuration["Cors:AllowedOriginsCsv"]));
+    origins.AddRange(SplitOrigins(configuration["Frontend:Url"]));
+    origins.AddRange(SplitOrigins(configuration["FrontendUrl"]));
+
+    return origins
+        .Select(origin => origin.Trim().TrimEnd('/'))
+        .Where(origin => !string.IsNullOrWhiteSpace(origin))
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .ToArray();
+}
+
+static IEnumerable<string> SplitOrigins(string? value)
+{
+    return string.IsNullOrWhiteSpace(value)
+        ? []
+        : value.Split([',', ';'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+}
